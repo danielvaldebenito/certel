@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="772cbae2855b4027a41df7563600f4c4" Name="Diagram1" ZoomLevel="126">
+        <EntityTypeShape EntityType="CertelModel.Aparato" Width="1.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Caracteristica" Width="1.5" PointX="6" PointY="27" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Cliente" Width="1.5" PointX="1.5" PointY="19.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Cumplimiento" Width="1.5" PointX="8.25" PointY="8" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.EquipoUtilizado" Width="1.5" PointX="3" PointY="7.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Especificos" Width="1.5" PointX="9" PointY="5.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.EstadoInspeccion" Width="1.5" PointX="3.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.EstadoServicio" Width="1.5" PointX="1.5" PointY="22.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.EstructuraInfome" Width="1.5" PointX="0.75" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Evaluacion" Width="1.5" PointX="6" PointY="13" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.FormatoNorma" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.MenuAcceso" Width="1.5" PointX="11" PointY="12.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.MenuModulo" Width="1.5" PointX="8.75" PointY="12" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Norma" Width="1.5" PointX="1.5" PointY="29.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Pda" Width="1.5" PointX="3" PointY="16" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Requisito" Width="1.5" PointX="3.75" PointY="27" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Rol" Width="1.5" PointX="0.75" PointY="12.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Servicio" Width="1.5" PointX="3.75" PointY="20.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.TerminosYDefiniciones" Width="1.5" PointX="9.75" PointY="1.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.TipoFuncionamientoAparato" Width="1.5" PointX="3.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.TipoNorma" Width="1.5" PointX="3.75" PointY="34" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Titulo" Width="1.5" PointX="1.5" PointY="27.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.Usuario" Width="1.5" PointX="0.75" PointY="7.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.UsuarioRol" Width="1.5" PointX="3" PointY="10.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="CertelModel.ValoresEspecificos" Width="1.5" PointX="11.25" PointY="8.25" IsExpanded="true" />
+        <AssociationConnector Association="CertelModel.FK_Caracteristica_Requisito" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Cumplimiento_Caracteristica" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Servicio_Cliente" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Cumplimiento_GlosarioCumplimiento1" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_EquipoUtilizado_Usuario" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK__ValoresEs__Espec__2704CA5F" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Servicio_EstadoServicio" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_MenuAcceso_MenuModulo" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_MenuAcceso_Rol" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_MenuModulo_MenuModulo" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Titulo_Norma" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Pda_Usuario" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_Requisito_Titulo" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_UsuarioRol_Rol" ManuallyRouted="false" />
+        <AssociationConnector Association="CertelModel.FK_UsuarioRol_Usuario" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="CertelModel.InspeccionNorma" Width="1.5" PointX="11.375" PointY="4.75" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Norma__2DB1C7EE" />
+        <EntityTypeShape EntityType="CertelModel.Fotografias" Width="1.5" PointX="10.5" PointY="15.625" />
+        <AssociationConnector Association="CertelModel.FK__Fotografi__Cumpl__41B8C09B" />
+        <EntityTypeShape EntityType="CertelModel.ActualizacionesPendientes" Width="1.5" PointX="8.25" PointY="21.75" />
+        <AssociationConnector Association="CertelModel.FK__Actualiza__Carac__4F7CD00D" />
+        <AssociationConnector Association="CertelModel.FK__Actualiza__PdaID__5070F446" />
+        <EntityTypeShape EntityType="CertelModel.CustomInforme" Width="1.5" PointX="12.375" PointY="0.75" />
+        <AssociationConnector Association="CertelModel.FK__CustomInf__Estru__59FA5E80" />
+        <EntityTypeShape EntityType="CertelModel.Informe" Width="1.5" PointX="8.25" PointY="15.5" />
+        <EntityTypeShape EntityType="CertelModel.Inspeccion" Width="1.5" PointX="6" PointY="4.625" />
+        <AssociationConnector Association="CertelModel.FK_Inspeccion_TipoTransporte" />
+        <AssociationConnector Association="CertelModel.FK_Cumplimiento_Inspeccion" />
+        <AssociationConnector Association="CertelModel.FK__CustomInf__Inspe__5629CD9C" />
+        <AssociationConnector Association="CertelModel.FK_Inspeccion_EstadoInspeccion" />
+        <AssociationConnector Association="CertelModel.FK__Informe__Inspecc__5DCAEF64" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Inspe__534D60F1" />
+        <AssociationConnector Association="CertelModel.FK__ValoresEs__Inspe__4CA06362" />
+        <AssociationConnector Association="CertelModel.FK_Inspeccion_Servicio" />
+        <AssociationConnector Association="CertelModel.FK_Inspeccion_TipoFuncionamientoTransporte" />
+        <AssociationConnector Association="CertelModel.FK_Inspeccion_Usuario" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Aprob__6D0D32F4" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Revis__6C190EBB" />
+        <EntityTypeShape EntityType="CertelModel.ObservacionTecnica" Width="1.5" PointX="8.25" PointY="19" />
+        <AssociationConnector Association="CertelModel.FK__Observaci__Inspe__70DDC3D8" />
+        <EntityTypeShape EntityType="CertelModel.TipoInforme" Width="1.5" PointX="6.375" PointY="0.75" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__TipoI__73BA3083" />
+        <AssociationConnector Association="CertelModel.FK__Norma__TipoInfor__74AE54BC" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Inspe__75A278F5" />
+        <EntityTypeShape EntityType="CertelModel.DestinoProyecto" Width="1.5" PointX="13.375" PointY="3.875" />
+        <AssociationConnector Association="CertelModel.FK__Inspeccio__Desti__797309D9" />
+        <EntityTypeShape EntityType="CertelModel.FotografiaTecnica" Width="1.5" PointX="10.5" PointY="19.125" />
+        <AssociationConnector Association="CertelModel.FK__Fotografi__Obser__7C4F7684" />
+        <AssociationConnector Association="CertelModel.FK__TerminosY__Norma__7D439ABD" />
+        <EntityTypeShape EntityType="CertelModel.NormasAsociadas" Width="1.5" PointX="3.75" PointY="31" />
+        <AssociationConnector Association="CertelModel.FK__NormasAso__Norma__03F0984C" />
+        <AssociationConnector Association="CertelModel.FK__NormasAso__Norma__04E4BC85" />
+        <AssociationConnector Association="CertelModel.FK_Norma_TipoNorma" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

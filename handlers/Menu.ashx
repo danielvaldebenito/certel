@@ -1,0 +1,40 @@
+﻿<%@ WebHandler Language="C#" Class="Menu" %>
+
+using System;
+using System.Web;
+using System.Web.SessionState;
+using System.Web.Script.Serialization;
+public class Menu : IHttpHandler, IRequiresSessionState {
+
+    public void ProcessRequest (HttpContext context) {
+        var serializer = new JavaScriptSerializer();
+        var dataUser = (DataUser)context.Session["dataUser"];
+        context.Response.ContentType = "application/json";
+        if (dataUser == null)
+        {
+            var data = new
+            {
+                code = 999,
+                page = "Login.aspx"
+            };
+            var json = serializer.Serialize(data);
+            context.Response.Write(json);
+            context.Response.Flush();
+        }
+        else
+        {
+            var json = serializer.Serialize(dataUser);
+            context.Response.Write(json);
+            context.Response.Flush();
+        }
+
+        
+    }
+
+    public bool IsReusable {
+        get {
+            return true;
+        }
+    }
+
+}

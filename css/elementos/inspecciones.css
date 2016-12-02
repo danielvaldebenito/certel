@@ -1,0 +1,274 @@
+﻿.jqgrid-grouping-text {
+    font-size: 14pt;
+    color: #007fff;
+}
+.form-group-normas {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+}
+.norma {
+    font-size: 16pt;
+    margin-left: 20px;
+    vertical-align: middle;
+}
+/*CheckList*/
+.chl-panel-filters {
+    margin: 20px auto;
+    border-bottom: 1px solid #FFF;
+    padding: 20px;
+    width: 100%;
+
+}
+
+.chl-norma {
+    background: #BDBDBD;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #233C78;
+    margin: 10px;
+}
+    .chl-norma h3 {
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: #233C78;
+        font-weight: bolder;
+    }
+    .chl-norma .chl-titulo{
+        border: 1px solid #233C78;
+        margin: 5px;
+        padding: 0px 5px;
+        background: #E0E0E0;
+    }
+    .chl-norma .chl-titulo h3 {
+        font-size: 16pt;
+        color:#233C78;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+    }
+    .chl-norma .chl-titulo p {
+        font-size: smaller;
+        text-transform: uppercase;
+        color:#233C78;
+    }
+    .chl-norma .chl-titulo .chl-requisito {
+        background: #EEEEEE;
+        padding: 10px;
+        border: 1px solid #007fff;
+        margin: 3px;
+    }
+        .chl-norma .chl-titulo .chl-requisito h4{
+            color: #007fff;
+
+        }
+        .chl-norma .chl-titulo .chl-requisito .chl-caracteristica {
+            background: #FFF;
+            box-shadow: 3px 3px 5px 1px #aaa;
+            margin: 10px;
+            padding: 20px 20px;
+        }
+        .chl-norma .chl-titulo .chl-requisito .chl-caracteristica > p {
+            font-size: smaller;
+            color:#000;
+        }
+.chl-botonera {
+
+    border-top: 1px solid #aaa;
+    /* Flexbox */
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+    .chl-botonera > .chl-btn {
+        padding: 5px;
+        text-align: center;
+        flex: 1 1 16.66667%;
+    }
+    .chl-botonera > .chl-btn > button{
+        width: 100%;
+        background: #eee;
+        
+    }
+    .chl-botonera > .chl-btn > button:hover{
+        opacity: 0.8;
+    }
+    .chl-botonera > .chl-btn > button.chl-active {
+        color: #FFF;
+    }
+    .chl-botonera > .chl-btn > button:focus{
+        outline: none;
+    }
+        .chl-botonera > .chl-btn > button.chl-ok{
+            border: 1px solid #00C853;
+            color: #00C853;
+        }
+            .chl-botonera > .chl-btn > button.chl-ok.chl-active{
+                background: #00C853;
+                color: #FFF;
+            }
+        .chl-botonera > .chl-btn > button.chl-na{
+            border: 1px solid #FFC107;
+            color: #FFC107;
+           
+        }
+            .chl-botonera > .chl-btn > button.chl-na.chl-active{
+                background: #FFC107;
+                color: #FFF;
+            }
+        .chl-botonera > .chl-btn > button.chl-nc{
+            border: 1px solid #D50000;
+            color: #D50000;
+        }
+            .chl-botonera > .chl-btn > button.chl-nc.chl-active{
+                background: #D50000;
+                color: #FFF;
+            }
+        .chl-botonera > .chl-btn > button.chl-obs{
+            border: 1px solid #01579B;
+            color: #01579B;
+        }
+            .chl-botonera > .chl-btn > button.chl-obs.chl-active{
+                background: #01579B;
+                color: #FFF;
+            }
+        .chl-botonera > .chl-btn > button.chl-img{
+            border: 1px solid #000000;
+            color: #000000;
+        }
+            .chl-botonera > .chl-btn > button.chl-img.chl-active{
+                background: #000000;
+                color: #FFF;
+            }
+div.chl-foto{
+            border: 1px solid #795548;
+            color: #795548;
+            width: 100%;
+        }
+div.chl-foto.chl-active{
+                background: #795548;
+                color: #FFF;
+            }
+    
+.fileUpload {
+    position: relative;
+    overflow: hidden;
+    margin: 10px auto;
+    width: 100%;
+    
+}
+.fileUpload input.upload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+#panel-fotos {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+
+#panel-fotos .pf-foto {
+    width: 180px;
+    
+    margin: 10px;
+    padding: 10px;
+    background: #EEE;
+    border-radius: 3px;
+    box-shadow: 3px 3px 5px #AAA;
+}
+.btn-group-vertical>.btn.active {
+    border: 3px solid #000;
+
+}
+#obs-tec-list {
+    height: 400px;
+    overflow-y: auto;
+    
+}
+#obs-tec-list > li {
+    padding-bottom: 40px;
+    position:relative;
+}
+#obs-tec-list >li >i {
+    position:absolute;
+}
+#obs-tec-list >li >i.fa-remove{
+    float: right;
+    color: #aaa;
+    cursor:pointer;
+    bottom: 5px;
+    right: 10px;
+}
+#obs-tec-list >li >i.fa-remove:hover {
+    color: #D50000;
+}
+#obs-tec-list >li >i.fa-camera{
+    float: right;
+    color: #aaa;
+    cursor:pointer;
+    bottom: 5px;
+    right: 30px;
+}
+
+#panel-obs {
+    position: relative;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#obs-tec {
+    width: 100%;
+    height: 80px;
+}
+.botonera {
+    position:absolute;
+    bottom: 0px;
+    right: 10px;
+}
+.fase {
+    font-weight:900;
+    font-size: 14pt;
+}
+.spanObservacion {
+    margin-left: 10px;
+}
+.btnDelete {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: #D50000;
+    cursor: pointer;
+}
+.input-group-addon.fileUpload {
+    width: 20px;
+}
+.yellow-row {
+    background: #FFF176;
+
+}
+.yellow-row.ui-state-highlight {
+    background: #FFF176;
+    color: #000;
+}
+.red-row {
+    background-color: #EF9A9A;
+    color: #000;
+}
+.red-row.ui-state-highlight {
+    background-color: #EF9A9A;
+}

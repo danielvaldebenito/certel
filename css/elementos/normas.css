@@ -1,0 +1,100 @@
+﻿#panelNormas {
+    padding: 10px;
+    
+    justify-content: flex-start;
+    align-items: flex-start;
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+    flex-direction: column;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+.node {
+    padding: 20px 40px;
+    margin: 5px;
+    background: #233C78;
+    color: #ffffff;
+    box-shadow: 2px 2px 15px #000;
+    cursor: pointer;
+    font-weight: bolder;
+    font-size: 14pt;
+    z-index:9;
+}
+.node:hover {
+    opacity: 0.9;
+}
+.node-secundario {
+    background: #007fff;
+    margin-left: 40px;
+    margin-top: 5px;
+    z-index: 10;
+}
+.subtitle {
+    font-size: 8pt;
+    color: #EEEEEE;
+}
+#panel-requisitos > .list-group {
+    max-height: 300px;
+    overflow-y: auto;
+    border-radius: 0;
+    margin-top: 10px;
+}
+    #panel-requisitos > .list-group > .list-group-item {
+        color: #233C78;
+        text-transform: uppercase;
+        border-radius: 0;
+    }
+        #panel-requisitos > .list-group > .list-group-item i {
+            margin: 5px;
+        }
+        #panel-requisitos > .list-group > .list-group-item i.fa-trash {
+            color: #b41111;
+        }
+        
+        #panel-requisitos > .list-group > .list-group-item span.badge{
+            cursor: pointer;
+        }
+
+#terminos-list {
+    height: 300px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.secondary {
+    margin: 5px;
+}
+.secondary i {
+    font-size: small;
+    margin: 3px;
+}
+.secondary span:hover i{
+    color: #b41111;
+
+}
+#terminos-list li {
+    padding-bottom: 50px;
+    position: relative;
+}
+.botonera {
+    position:absolute;
+    right: 10px;
+    bottom: 10px;
+}
+.botonera i {
+    font-size: 14pt;
+    margin: 10px;
+    cursor: pointer;
+}
+    .botonera i.fa-pencil {
+        color: #233C78;
+    }
+    .botonera i.fa-pencil:hover{
+        color: #007fff;
+    }
+    .botonera i.fa-remove {
+        color: #b41111;
+    }
+    .botonera i.fa-remove:hover{
+        color: #ff0000;
+    }
