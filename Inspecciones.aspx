@@ -408,7 +408,7 @@
                 </div>
                 <div class="form-group" id="fase2" style="display:none">
                     <input type="checkbox" id="crearfase2" />
-                    <label for="crearfase2">Crear Fase 2</label>
+                    <label for="crearfase2">Crear Fase Siguiente</label>
                 </div>
             </div>
         </div>

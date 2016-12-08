@@ -994,7 +994,7 @@ public class CreatePDFD118
         title.AddBookmark("observaciones");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. OBSERVACIONES NORMATIVAS Y TÉCNICAS", point), Mark = "observaciones", IsSub = false });
 
-        Paragraph texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que la {0} quede en norma, y pueda ser certificada:", Inspeccion.Aparato.Nombre));
+        Paragraph texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que el elevador quede en norma, y pueda ser certificado:", Inspeccion.Aparato.Nombre));
         texto.Style = "Parrafo";
         title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint));
         title.Style = "Heading2";
@@ -1019,52 +1019,58 @@ public class CreatePDFD118
         var subsubpoint = 1;
         var numberfoto = 1;
         string pathImage = HttpContext.Current.Server.MapPath("~/fotos/");
-        var withoutFotoReadies = false;
-        var nocsinfoto = noCumplimiento.Where(w => !w.Fotos.Any()).ToList();
-        var noCumplimientoSinFoto = noCumplimiento.Any(w => w.Fotos.Count() == 0);
+
+        var noCumplimientoSinFoto = noCumplimiento.Where(w => w.Fotos.Any());
+        var noCumplimientoConFoto = noCumplimiento.Where(w => w.Fotos.Any());
         var count = 0;
-        foreach (var nc in noCumplimiento)
+        if (noCumplimientoSinFoto.Count() > 0)
         {
-            if (!withoutFotoReadies && noCumplimientoSinFoto)
+            foreach (var nc in noCumplimientoSinFoto)
             {
-                if (nc.Fotos.Any())
-                {
-                    withoutFotoReadies = true;
-                    section.AddPageBreak();
-                }
+                var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
+                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
+                texto.Style = "Parrafo";
+                texto.Format.Alignment = ParagraphAlignment.Left;
+                subsubpoint++;
             }
-            
-            if (withoutFotoReadies)
+            section.AddPageBreak();
+        }
+        if (noCumplimientoConFoto.Count() > 0)
+        {
+            foreach (var nc in noCumplimientoConFoto)
             {
-                
-                if(count == 2)
+                if (count == 2)
                 {
-                    count = 0;
                     section.AddPageBreak();
+                    count = 0;
+                }
+                var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
+                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
+                texto.Style = "Parrafo";
+                texto.Format.Alignment = ParagraphAlignment.Left;
+                subsubpoint++;
+
+                foreach (var foto in nc.Fotos)
+                {
+                    var p = section.AddParagraph("");
+                    p.Format.Alignment = ParagraphAlignment.Center;
+                    Image image = section.LastParagraph.AddImage(pathImage + "/" + foto);
+                    image.Width = "8cm";
+                    var parr = section.AddParagraph("Imagen N° " + numberfoto);
+                    parr.Style = "Pie";
+                    numberfoto++;
+
                 }
                 count++;
             }
-            var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-            var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
-            texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
-            texto.Style = "Parrafo";
-            texto.Format.Alignment = ParagraphAlignment.Left;
-            foreach (var foto in nc.Fotos)
-            {
-                var p = section.AddParagraph("");
-                p.Format.Alignment = ParagraphAlignment.Center;
-                Image image = section.LastParagraph.AddImage(pathImage + "/" + foto);
-                image.Width = "8cm";
-                var parr = section.AddParagraph("Imagen N° " + numberfoto);
-                parr.Style = "Pie";
-                numberfoto++;
-            }
-            subsubpoint++;
-
         }
-        var observacionesTecnicas = Inspeccion.ObservacionTecnica.ToList();
+
+        var observacionesTecnicas = Inspeccion.ObservacionTecnica;
         if (observacionesTecnicas.Count == 0)
             return;
+
         subpoint++;
         title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES TÉCNICAS", point, subpoint));
         title.Style = "Heading1";
@@ -1072,26 +1078,44 @@ public class CreatePDFD118
         bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES TÉCNICAS", point, subpoint), Mark = "observacionestecnicas", IsSub = true });
 
         subsubpoint = 1;
-
-        foreach (var o in observacionesTecnicas)
+        count = 0;
+        var otSinFoto = observacionesTecnicas.Where(a => !a.FotografiaTecnica.Any());
+        var otConFoto = observacionesTecnicas.Where(a => a.FotografiaTecnica.Any());
+        if (otSinFoto.Count() > 0)
         {
-            texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
-            texto.Style = "Parrafo";
-            var hasImage = o.FotografiaTecnica.FirstOrDefault();
-            if (hasImage != null)
+            foreach (var o in otSinFoto)
             {
+
+                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
+                texto.Style = "Parrafo";
+                subsubpoint++;
+            }
+            section.AddPageBreak();
+        }
+        if (otConFoto.Count() > 0)
+        {
+            foreach (var o in otConFoto)
+            {
+                if (count == 2)
+                {
+                    section.AddPageBreak();
+                    count = 0;
+                }
+                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
+                texto.Style = "Parrafo";
+                subsubpoint++;
+                var photo = o.FotografiaTecnica.Select(s => s.URL).FirstOrDefault();
                 var p = section.AddParagraph("");
                 p.Format.Alignment = ParagraphAlignment.Center;
-                Image image = section.LastParagraph.AddImage(pathImage + "/" + hasImage.URL);
+                Image image = section.LastParagraph.AddImage(pathImage + "/" + photo);
                 image.Width = "8cm";
                 var parr = section.AddParagraph("Imagen N° " + numberfoto);
                 parr.Style = "Pie";
                 numberfoto++;
+                count++;
+
             }
-
-            subsubpoint++;
         }
-
     }
     public void Conclusiones()
     {
@@ -1143,12 +1167,22 @@ public class CreatePDFD118
                 texto.Style = "Parrafo";
                 texto = section.AddParagraph(string.Format("La {0} N° {1}, en su estado actual, NO CALIFICA PARA LA CERTIFICACIÓN, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que la {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, normas));
                 texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades de la {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
-                texto.Style = "Parrafo";
+                if(Inspeccion.Fase == 1)
+                {
+                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades de la {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
+                    texto.Style = "Parrafo";
+                }
+                else if (Inspeccion.CreaFaseSiguiente == true)
+                {
+                    texto = section.AddParagraph("Debido a que las no conformidades no fueron subsanadas tras la inspección del servicio de Fase II, el cliente debe solicitar el servicio de inspección de Fase III y/o iniciar el proceso de certificación nuevamente.");
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph("Si elige el servicio de Fase III (cotización adicional), se otorga un plazo de 30 días para realizar las mejoras pendientes (observaciones menores que no afecten el normal funcionamiento del elevador). Si tras la inspección de Fase III no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.");
+                    texto.Style = "Parrafo";
+                }
                 break;
             case 2: // CALIFICA CON OBSERVACIONES MENORES
                 texto = section.AddParagraph(string.Format("Es necesario dar solución a las no conformidades y observaciones encontradas, separando las correspondientes a la edificación (cliente), así como las correspondientes a la empresa mantenedora de ascensores,  con el objeto de incrementar la seguridad del mismo, proteger adecuadamente a los usuarios, a los técnicos de mantención y/o personal propio de la empresa en labores de rescate de emergencia."));
@@ -1159,13 +1193,22 @@ public class CreatePDFD118
                 texto.Style = "Parrafo";
                 texto = section.AddParagraph(string.Format("La {0} N° {1}, en su estado actual, CALIFICA PARA LA CERTIFICACIÓN CON OBSERVACIONES MENORES, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que la {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, normas));
                 texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades de la {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
-                texto.Style = "Parrafo";
-
-                texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
-                texto.Style = "Parrafo";
+                if (Inspeccion.Fase == 1)
+                {
+                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades de la {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
+                    texto.Style = "Parrafo";
+                }
+                else if (Inspeccion.CreaFaseSiguiente == true)
+                {
+                    texto = section.AddParagraph("Debido a que las no conformidades no fueron subsanadas tras la inspección del servicio de Fase II, el cliente debe solicitar el servicio de inspección de Fase III y/o iniciar el proceso de certificación nuevamente.");
+                    texto.Style = "Parrafo";
+                    texto = section.AddParagraph("Si elige el servicio de Fase III (cotización adicional), se otorga un plazo de 30 días para realizar las mejoras pendientes (observaciones menores que no afecten el normal funcionamiento del elevador). Si tras la inspección de Fase III no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.");
+                    texto.Style = "Parrafo";
+                }
                 break;
             case 1: // CALIFICA SIN OBSERVACIONES
                 texto = section.AddParagraph(string.Format("En conformidad a las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas, se acredita mediante  inspección técnica y normativa, que la instalación de la {0} cumple con los requisitos de instalación y de las seguridades en conformidad con las normas {1} aplicadas. Por lo tanto, se acredita que el elevador ha sido adecuadamente mantenido y que se encuentra en condiciones de seguir funcionando.", Inspeccion.Aparato.Nombre, normas));

@@ -306,6 +306,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             var val = int.Parse(post.Request["val"]);
             var dias = int.Parse(post.Request["dias"]);
             var creafase2 = bool.Parse(post.Request["creafase2"]);
+            var mensaje = "Guardado";
             using (var db = new CertelEntities())
             {
                 var inspeccion = db.Inspeccion
@@ -314,80 +315,86 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 if (val == 0)
                     inspeccion.DiasPlazo = dias;
                 db.SaveChanges();
-
-                var crea = false;
-                if (creafase2 && inspeccion.Fase == 1 && !inspeccion.Inspeccion1.Any())
+                bool crea;
+                if (creafase2)
                 {
-                    if(!inspeccion.Inspeccion1.Any())
+                    if(inspeccion.Fase == 1)
                     {
-                        var fase2 = new Inspeccion
+                        if(!inspeccion.Inspeccion1.Any())
                         {
-                            EstadoID = 1,
-                            Fase = 2,
-                            FechaCreacion = DateTime.Now,
-                            InspeccionFase1 = inspeccion.ID,
-                            AparatoID = inspeccion.AparatoID,
-                            AlturaPisos = inspeccion.AlturaPisos,
-                            Destinatario = inspeccion.Destinatario,
-                            DestinoProyectoID = inspeccion.DestinoProyectoID,
-                            FechaInstalacion = inspeccion.FechaInstalacion,
-                            Ingeniero = inspeccion.Ingeniero,
-                            IT = inspeccion.IT,
-                            NombreEdificio = inspeccion.NombreEdificio,
-                            NombreProyecto = inspeccion.NombreProyecto,
-                            TipoInformeID = inspeccion.TipoInformeID,
-                            TipoFuncionamientoID = inspeccion.TipoFuncionamientoID,
-                            ServicioID = inspeccion.ServicioID,
-                            Numero = inspeccion.Numero,
-                            Ubicacion = inspeccion.Ubicacion,
-                            PermisoEdificacion = inspeccion.PermisoEdificacion,
-                            RecepcionMunicipal = inspeccion.RecepcionMunicipal,
-
-
-                        };
-
-                        if(inspeccion.FechaEntrega.HasValue)
-                            fase2.FechaInspeccion = inspeccion.FechaEntrega.Value.AddDays(dias);
-
-                        db.Inspeccion.Add(fase2);
-                        db.SaveChanges();
-
-
-                        var inspeccionNormaOriginal = inspeccion.InspeccionNorma.ToList();
-                        foreach(var i in inspeccionNormaOriginal)
-                        {
-                            var inspeccionNorma = new InspeccionNorma
+                            var fase2 = new Inspeccion
                             {
-                                InspeccionID = fase2.ID,
-                                NormaID = i.NormaID
-                            };
-                            db.InspeccionNorma.Add(inspeccionNorma);
-                            db.SaveChanges();
-                        }
-                        var especificos = inspeccion.ValoresEspecificos.ToList();
-                        foreach(var i in especificos)
-                        {
-                            var valoresEspecificos = new ValoresEspecificos
-                            {
-                                EspecificoID = i.EspecificoID,
-                                InspeccionID = fase2.ID,
-                                Valor = i.Valor
-                            };
-                            db.ValoresEspecificos.Add(valoresEspecificos);
-                            db.SaveChanges();
-                        }
+                                EstadoID = 1,
+                                Fase = 2,
+                                FechaCreacion = DateTime.Now,
+                                InspeccionFase1 = inspeccion.ID,
+                                AparatoID = inspeccion.AparatoID,
+                                AlturaPisos = inspeccion.AlturaPisos,
+                                Destinatario = inspeccion.Destinatario,
+                                DestinoProyectoID = inspeccion.DestinoProyectoID,
+                                FechaInstalacion = inspeccion.FechaInstalacion,
+                                Ingeniero = inspeccion.Ingeniero,
+                                IT = inspeccion.IT,
+                                NombreEdificio = inspeccion.NombreEdificio,
+                                NombreProyecto = inspeccion.NombreProyecto,
+                                TipoInformeID = inspeccion.TipoInformeID,
+                                TipoFuncionamientoID = inspeccion.TipoFuncionamientoID,
+                                ServicioID = inspeccion.ServicioID,
+                                Numero = inspeccion.Numero,
+                                Ubicacion = inspeccion.Ubicacion,
+                                PermisoEdificacion = inspeccion.PermisoEdificacion,
+                                RecepcionMunicipal = inspeccion.RecepcionMunicipal,
 
-                        crea = true;
+
+                            };
+
+                            if(inspeccion.FechaEntrega.HasValue)
+                                fase2.FechaInspeccion = inspeccion.FechaEntrega.Value.AddDays(dias);
+
+                            db.Inspeccion.Add(fase2);
+                            db.SaveChanges();
+
+
+                            var inspeccionNormaOriginal = inspeccion.InspeccionNorma.ToList();
+                            foreach(var i in inspeccionNormaOriginal)
+                            {
+                                var inspeccionNorma = new InspeccionNorma
+                                {
+                                    InspeccionID = fase2.ID,
+                                    NormaID = i.NormaID
+                                };
+                                db.InspeccionNorma.Add(inspeccionNorma);
+                                db.SaveChanges();
+                            }
+                            var especificos = inspeccion.ValoresEspecificos.ToList();
+                            foreach(var i in especificos)
+                            {
+                                var valoresEspecificos = new ValoresEspecificos
+                                {
+                                    EspecificoID = i.EspecificoID,
+                                    InspeccionID = fase2.ID,
+                                    Valor = i.Valor
+                                };
+                                db.ValoresEspecificos.Add(valoresEspecificos);
+                                db.SaveChanges();
+                            }
+                            mensaje = "La calificación fue guardada. La fase 2 ha sido creada";
+
+                        }
+                        else {
+                            mensaje = "La calificación fue guardada, pero no se creó una Fase 2, porque ya existe una.";
+                        }
                     }
-
-                };
-                var mensaje = string.Empty;
-                if (creafase2 && !crea)
-                    mensaje = "Guardado, pero ya existe una fase 2 para la inspección. Verifique.";
-                else if (creafase2)
-                    mensaje = "Guardado. Fase 2 creada";
-                else
-                    mensaje = "Guardado";
+                    else {
+                        mensaje = "La calificación ha sido guardada. Se especificará en el informe, que se creará una fase 3, materia de otra cotización";
+                    }
+                    crea = true;
+                }
+                else {
+                    crea = false;
+                }
+                inspeccion.CreaFaseSiguiente = crea;
+                db.SaveChanges();
                 return new { done = true, message = mensaje };
             }
 
@@ -1014,6 +1021,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                     Aparato = inspeccion.AparatoID,
                     TipoFuncionamiento = inspeccion.TipoFuncionamientoID,
                     Destino = inspeccion.DestinoProyectoID == null ? string.Empty : inspeccion.DestinoProyecto.Descripcion,
+                    DestinoId = inspeccion.DestinoProyectoID,
                     PermisoEdificacion = inspeccion.PermisoEdificacion,
                     RecepcionMunicipal = inspeccion.RecepcionMunicipal,
                     Altura = inspeccion.AlturaPisos == null ? string.Empty : inspeccion.AlturaPisos.ToString(),
@@ -1134,7 +1142,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                Destinatario = x.Destinatario,
                                Fase1 = x.Fase,
                                Califica = x.Calificacion,
-                               HasNextFase = x.Inspeccion1.Any()
+                               HasNextFase = x.Inspeccion1.Any() || x.CreaFaseSiguiente == true
                            })
                            .ToList()
                 };

@@ -272,6 +272,7 @@ public partial class Inspeccion
     public Nullable<int> InspeccionFase1 { get; set; }
     public string Destinatario { get; set; }
     public Nullable<int> DestinoProyectoID { get; set; }
+    public Nullable<bool> CreaFaseSiguiente { get; set; }
 
     public virtual Aparato Aparato { get; set; }
     public virtual ICollection<Cumplimiento> Cumplimiento { get; set; }

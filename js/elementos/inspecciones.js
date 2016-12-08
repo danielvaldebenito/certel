@@ -32,19 +32,16 @@ $(document).ready(function () {
     });
     $('input[name=calificacion]').change(function () {
         var value = $(this).val();
-        if (value != 0)
+        console.log('change', value);
+        if (value == 1)
         {
             $('#plazo').hide();
             $('#fase2').hide();
         }   
         else
         {
-            if (SELECTED_INSPECCION_ROW.Fase1 == 1)
-            {
-                $('#plazo').fadeIn();
-                $('#fase2').fadeIn();
-            }
-            
+            $('#plazo').show();
+            $('#fase2').show(); 
         }
             
     });
@@ -95,7 +92,7 @@ $(document).ready(function () {
         ],
         sortname: 'FechaCreacion', sortorder: 'asc',
         viewrecords: true,
-        height: 300,
+        height: 350,
         rowNum: 30,
         pager: "#pager",
         caption: 'Inspecciones',
@@ -567,7 +564,6 @@ $(document).ready(function () {
 
     }).trigger('resize');
 
-    
 });
 function openAlertGetInforme(rowData)
 {
@@ -684,24 +680,28 @@ function openCalificacion(row) {
                 .removeClass('active');
             var cal = row.Califica;
             var $radios = $('input:radio[name=calificacion]');
-
+            console.log('value on open', cal);
+            
             $radios
                 .filter('[value="' + cal +'"]')
                 .prop('checked', true)
                 .closest('label')
                 .addClass('active');
-            
-            if(cal == '0' && row.HasNextFase == 'false')
-            {
+
+            if (cal == '2' || cal == '0' && row.HasNextFase == 'false') {
                 $('#plazo').show();
                 $('#fase2').show();
+            }
+            else {
+                $('#plazo').hide();
+                $('#fase2').hide();
+                
             }
                 
         },
         close: function () {
             
-            $('#plazo').hide();
-            $('#fase2').hide();
+            $('input:radio[name="calificacion"]').prop('checked', false);
         },
         buttons: [
             {
@@ -736,7 +736,7 @@ function openDialogEdit(row) {
                 $('#ei-fecha-inspeccion').val(rowData.FechaInspeccion);
                 $('#ei-aparato').val(rowData.Aparato);
                 $('#ei-tipo-funcionamiento').val(rowData.TipoFuncionamiento);
-                $('#ei-destino').val(rowData.Destino);
+                $('#ei-destino').val(rowData.DestinoId);
                 $('#ei-permiso-edificacion').val(rowData.PermisoEdificacion);
                 $('#ei-recepcion-municipal').val(rowData.RecepcionMunicipal);
                 $('#ei-altura').val(rowData.Altura);

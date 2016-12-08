@@ -185,6 +185,7 @@
           <Property Name="TipoInformeID" Type="int" />
           <Property Name="InspeccionFase1" Type="int" />
           <Property Name="DestinoProyectoID" Type="int" />
+          <Property Name="CreaFaseSiguiente" Type="bit" />
         </EntityType>
         <EntityType Name="InspeccionNorma">
           <Key>
@@ -1864,6 +1865,7 @@
           <Property Name="Destinatario" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="DestinoProyectoID" Type="Int32" />
           <NavigationProperty Name="DestinoProyecto" Relationship="CertelModel.FK__Inspeccio__Desti__797309D9" FromRole="Inspeccion" ToRole="DestinoProyecto" />
+          <Property Name="CreaFaseSiguiente" Type="Boolean" />
         </EntityType>
         <Association Name="FK_Inspeccion_TipoTransporte">
           <End Type="CertelModel.Aparato" Role="Aparato" Multiplicity="0..1" />
@@ -2481,6 +2483,7 @@
           <EntitySetMapping Name="Inspeccion">
             <EntityTypeMapping TypeName="CertelModel.Inspeccion">
               <MappingFragment StoreEntitySet="Inspeccion">
+                <ScalarProperty Name="CreaFaseSiguiente" ColumnName="CreaFaseSiguiente" />
                 <ScalarProperty Name="DestinoProyectoID" ColumnName="DestinoProyectoID" />
                 <ScalarProperty Name="Destinatario" ColumnName="Destinatario" />
                 <ScalarProperty Name="InspeccionFase1" ColumnName="InspeccionFase1" />
