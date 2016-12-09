@@ -966,7 +966,16 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                         if (existRecord != null)
                         {
                             if (s.value == string.Empty)
+                            {
                                 db.ValoresEspecificos.Remove(existRecord);
+                                db.SaveChanges();
+                            }
+                            else
+                            {
+                                existRecord.Valor = s.value;
+                                db.SaveChanges();
+                            }
+
                             continue;
                         }
                         if (s.value == string.Empty)
@@ -980,10 +989,11 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                             Valor = s.value
                         };
                         db.ValoresEspecificos.Add(ve);
+                        db.SaveChanges();
                     }
                 }
 
-                db.SaveChanges();
+
                 return new
                 {
                     done = true,

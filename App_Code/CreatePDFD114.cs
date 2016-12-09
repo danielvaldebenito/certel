@@ -1179,11 +1179,11 @@ public class CreatePDFD114
                 
                 if(Inspeccion.Fase == 1)
                 {
-                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
+                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString(), Inspeccion.Aparato.Nombre));
                     texto.Style = "Parrafo";
                     texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
                     texto.Style = "Parrafo";
-                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
+                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString()));
                     texto.Style = "Parrafo";
                 }
                 else if (Inspeccion.CreaFaseSiguiente == true)
@@ -1205,12 +1205,12 @@ public class CreatePDFD114
                 texto.Style = "Parrafo";
                 if(Inspeccion.Fase == 1)
                 {
-                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo.ToString() ?? "90", Inspeccion.Aparato.Nombre));
+                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString(), Inspeccion.Aparato.Nombre));
                     texto.Style = "Parrafo";
                     texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
                     texto.Style = "Parrafo";
 
-                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo.ToString() ?? "90"));
+                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString()));
                     texto.Style = "Parrafo";
                 }
                 else if (Inspeccion.CreaFaseSiguiente == true)
