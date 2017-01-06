@@ -32,7 +32,7 @@ public class Login : IHttpHandler, IRequiresSessionState
                 {
                     var dataUser = new DataUser
                     {
-                        Usuario = user,
+                        Usuario = user.ToLower(),
                         Nombre = string.Concat(usuario.Nombre, " ", usuario.Apellido),
                         Roles = usuario.UsuarioRol.Select(s => s.Rol).ToList()
                     };

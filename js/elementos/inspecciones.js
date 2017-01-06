@@ -3,6 +3,7 @@ var SELECTED_INSPECCION;
 var SELECTED_CARACTERISTICA;
 var SPECIFIC_DATA_APPLY_ALL = false;
 var SELECTED_INSPECCION_ROW = {};
+var SELECTED_OT = {};
 $(document).ready(function () {
 
     $('[name="check"]').bootstrapSwitch();
@@ -440,6 +441,33 @@ $(document).ready(function () {
         return false;
 
     });
+
+    // edit ot submit
+    $('#eot-form').submit(function (e) {
+        e.preventDefault();
+        if (!validateForm($(this))) {
+            alertify.error('Complete los datos requeridos');
+            return false;
+        }
+        $.ajax({
+            url: 'handlers/Inspecciones.ashx',
+            type: 'POST',
+            data: { 1: 'editOT', id: SELECTED_OT.Id, text: $('#eot-observacion').val() },
+            success: function(result)
+            {
+                if(result.done)
+                {
+                    $('#edit-observacion-tecnica-dialog').dialog('close');
+                    getObservacionesTecnicas(SELECTED_INSPECCION_ROW);
+                }
+                else
+                {
+                    alertify.alert('Zientte', result.message, function () { });
+                }
+            }
+        })
+        return false;
+    });
     // edit form aprobacion
     $('#add').click(function () {
         $('#add-inspeccion-dialog').dialog({
@@ -547,6 +575,21 @@ $(document).ready(function () {
             return;
         }
         saveObservacion(SELECTED_INSPECCION,  $('#obs-tec').val());
+    });
+    $('#observaciones-tecnicas-dialog').dialog({
+        modal: true, bgiframe: false, width: 800, title: 'Observaciones Técnicas', draggable: true,
+        resizable: false, closeOnEscape: true, autoOpen: false, show: 'clip', hide: 'puff',
+        height: $(window).height(),
+        close: function () {
+            $('#obs-tec').val('');
+        },
+        buttons: [{
+            id: 'closeobs',
+            text: 'Cerrar',
+            click: function () {
+                $('#observaciones-tecnicas-dialog').dialog('close');
+            }
+        }]
     });
     // Resize Panels
     $(window).bind('resize', function (e) {
@@ -687,17 +730,17 @@ function openCalificacion(row) {
                 .prop('checked', true)
                 .closest('label')
                 .addClass('active');
-
-            if (cal == '2' || cal == '0' && row.HasNextFase == 'false') {
+            $('#fase2').hide();
+            $('#plazo').hide();
+            if (cal == '2' || cal == '0') {
                 $('#plazo').show();
-                $('#fase2').show();
+                if (row.HasNextFase == 'false') {
+                    $('#fase2').show();
+                }
             }
-            else {
-                $('#plazo').hide();
-                $('#fase2').hide();
-                
-            }
-                
+            
+            
+            
         },
         close: function () {
             
@@ -999,7 +1042,7 @@ function openCheckListDialog()
         modal: true, bgiframe: false, width: '60%', title: 'Check-list Inspección', draggable: true,
         resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
         position: { my: "center", at: "top", of: document, collision: "fit" }, height: $(window).height(),
-        open: function () { },
+        open: function () { $('#check-list-panel').empty(); },
         buttons: [
             {
                 id: 'close-chl',
@@ -1385,11 +1428,20 @@ function getObservacionesTecnicas(row) {
                                 
                         .append($('<span>')
                             .addClass('btnDelete')
-                            .append($('<i>')
-                            .addClass('fa fa-remove')
-                            .click(function () {
-                                removeObservacionTecnica(item.Id, li);
-                            }))));
+                                .append($('<i>')
+                                .addClass('fa fa-remove')
+                                .click(function () {
+                                    removeObservacionTecnica(item.Id, li);
+                                })))
+                        .append($('<span>')
+                            .addClass('btnEdit')
+                                .append($('<i>')
+                                .addClass('fa fa-pencil')
+                                .click(function () {
+                                    SELECTED_OT = item;
+                                    editarObservacionTecnica();
+                                })))
+                        );
 
                     //.append($('<a>').
                     //            .prop('href', item.URL)
@@ -1412,28 +1464,36 @@ function getObservacionesTecnicas(row) {
                     img.hide();
                 //);
             });
-            openDialogObservacionesTecnicas();
+            if(!$('#observaciones-tecnicas-dialog').dialog('isOpen'))
+                $('#observaciones-tecnicas-dialog').dialog('open');
         }
     })
     
 }
+function editarObservacionTecnica()
+{
+    
+    $('#eot-observacion').val(SELECTED_OT.Texto);
+    $('#edit-observacion-tecnica-dialog').dialog({
+        modal: true, bgiframe: false, width: 800, title: 'Editar Observación Técnica', draggable: true,
+        resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
+        close: function () {
+            $('#eot-observacion').val('');
+        },
+        buttons: [
+            {
+                id: 'editot',
+                text: 'Guardar',
+                click: function () {
+                    $('#eot-form').submit();
+                }
+            }
+        ]
+    })
+}
 function openDialogObservacionesTecnicas()
 {
-    $('#observaciones-tecnicas-dialog').dialog({
-        modal: true, bgiframe: false, width: 800, title: 'Observaciones Técnicas', draggable: true,
-        resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
-        height: $(window).height(),
-        close: function () {
-            $('#obs-tec').val('');
-        },
-        buttons: [{
-            id: 'closeobs',
-            text: 'Cerrar',
-            click: function () {
-                $('#observaciones-tecnicas-dialog').dialog('close');
-            }
-        }]
-    });
+    
 }
 function removeObservacionTecnica(id, li)
 {
@@ -1473,7 +1533,7 @@ function saveObservacion(id, texto)
 }
 function saveCalificacion(id, val)
 {
-    if (val == 0 && $('#diasplazo').val() == '')
+    if ((val == 0 || val == 2) && $('#diasplazo').val() == '')
     {
         alertify.error('Debe ingresar la cantidad de días de plazo que tiene el cliente para resolver observaciones');
         return;
@@ -1567,6 +1627,9 @@ function setObs(car, insp, btn) {
                                     $(btn).addClass('chl-active');
                                 $('#writing-observacion-dialog').dialog('close');
                                 $(btn).data('texto', $('#wod-observacion').val());
+                            }
+                            else {
+                                alertify.error(result.message);
                             }
                         }
                     })

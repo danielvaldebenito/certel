@@ -254,6 +254,7 @@ div.chl-foto.chl-active{
     color: #D50000;
     cursor: pointer;
 }
+
 .input-group-addon.fileUpload {
     width: 20px;
 }
@@ -271,4 +272,10 @@ div.chl-foto.chl-active{
 }
 .red-row.ui-state-highlight {
     background-color: #EF9A9A;
+}
+.btnEdit {
+    position: absolute;
+    bottom: 10px;
+    right: 30px;
+    cursor: pointer;
 }

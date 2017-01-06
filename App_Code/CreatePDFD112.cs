@@ -9,6 +9,7 @@ using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using System;
 using System.Collections.Generic;
+using System.IO;
 /// <summary>
 /// Descripción breve de CreatePDF
 /// </summary>
@@ -691,13 +692,14 @@ public class CreatePDFD112
             foreach (var t in terminos)
             {
                 Paragraph termino = section.AddParagraph(t.Termino);
+                termino.Format.Font.Size = 11;
                 termino.Format.Font.Bold = true;
                 termino.Format.SpaceAfter = 2;
                 Paragraph definicion = section.AddParagraph(t.Definicion.TrimEnd());
                 definicion.Style = "Parrafo";
                 definicion.Format.LeftIndent = "1cm";
                 definicion.Format.SpaceBefore = "0.1cm";
-                definicion.Format.Alignment = ParagraphAlignment.Left;
+                definicion.Format.Alignment = ParagraphAlignment.Justify;
             }
         }
     }
@@ -1002,16 +1004,21 @@ public class CreatePDFD112
         bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint), Mark = "observacionespornorma", IsSub = true });
         // Observaciones por Norma
         var noCumplimiento = Inspeccion.Cumplimiento
-                            .Where(w => w.EvaluacionID == 3)
+                            .Where(w => w.EvaluacionID == 3 || w.EvaluacionID == 1)
+                            .Where(w => w.EvaluacionID == 3 ? w.Observacion != null || w.Fotografias.Count > 0
+                                    : w.Fotografias.Count > 0)
                             .Where(w => w.Observacion != null || w.Fotografias.Count > 0)
+                            .Where(w => w.Caracteristica.Habilitado == true)
                             .Select(s => new
                             {
                                 Requisito = s.Caracteristica.Requisito.Descripcion,
                                 Norma = s.Caracteristica.Requisito.Titulo.Norma.Nombre,
                                 Observacion = s.Observacion,
-                                Fotos = s.Fotografias.Select(f => f.URL)
+                                Fotos = s.Fotografias.Select(f => f.URL),
+                                Evaluacion = s.EvaluacionID
                             })
-                            .OrderBy(o => o.Fotos.Count() > 0)
+                            .OrderBy(o => o.Evaluacion)
+                            .ThenBy(o => o.Fotos.Count() > 0)
                             .ToList();
         if (noCumplimiento.Count == 0)
             return;
@@ -1020,7 +1027,7 @@ public class CreatePDFD112
         var numberfoto = 1;
         string pathImage = HttpContext.Current.Server.MapPath("~/fotos/");
 
-        var noCumplimientoSinFoto = noCumplimiento.Where(w => w.Fotos.Any());
+        var noCumplimientoSinFoto = noCumplimiento.Where(w => !w.Fotos.Any());
         var noCumplimientoConFoto = noCumplimiento.Where(w => w.Fotos.Any());
         var count = 0;
         if (noCumplimientoSinFoto.Count() > 0)
@@ -1028,7 +1035,9 @@ public class CreatePDFD112
             foreach (var nc in noCumplimientoSinFoto)
             {
                 var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                var complemento = nc.Evaluacion == 3
+                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
+                                    : string.Empty;
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;
@@ -1046,7 +1055,9 @@ public class CreatePDFD112
                     count = 0;
                 }
                 var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                var complemento = nc.Evaluacion == 3
+                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
+                                    : string.Empty;
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;

@@ -103,6 +103,9 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             case "saveObservacionTecnica":
                 data = SaveObservacionTecnica(post);
                 break;
+            case "editOT":
+                data = EditOT(post);
+                break;
             case "getObservacionesTecnicas":
                 data = GetObservacionesTecnicas(post);
                 break;
@@ -137,6 +140,26 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
         catch (Exception ex)
         {
             log.Error("Inspecciones/Plantilla", ex);
+            return new { done = false, message = ex.ToString() };
+        }
+    }
+    private static object EditOT(HttpContext post)
+    {
+        try
+        {
+            var id = int.Parse(post.Request["id"]);
+            var texto = post.Request["text"];
+            using (var db = new CertelEntities())
+            {
+                var ot = db.ObservacionTecnica.Find(id);
+                ot.Texto = texto;
+                db.SaveChanges();
+                return new { done = true, message = "Registro Actualizado" };
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Inspecciones/EditOT", ex);
             return new { done = false, message = ex.ToString() };
         }
     }
@@ -312,7 +335,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var inspeccion = db.Inspeccion
                                     .Find(inspeccionId);
                 inspeccion.Calificacion = val;
-                if (val == 0)
+                if (val == 0 || val == 2)
                     inspeccion.DiasPlazo = dias;
                 db.SaveChanges();
                 bool crea;
@@ -603,14 +626,11 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                 .FirstOrDefault();
                 if (exists == null)
                 {
-                    var evaluacion = new Cumplimiento
+                    return new
                     {
-                        CaracteristicaID = caracteristica,
-                        InspeccionID = inspeccion,
-                        Observacion = observacion,
-                        Fecha = DateTime.Now,
+                        done = false,
+                        message = "Primero ingrese un cumplimiento"
                     };
-                    db.Cumplimiento.Add(evaluacion);
                 }
                 else
                 {

@@ -9,6 +9,7 @@ using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using System;
 using System.Collections.Generic;
+using System.IO;
 /// <summary>
 /// Descripción breve de CreatePDF
 /// </summary>
@@ -21,7 +22,7 @@ public class CreatePDFD114
     int subpoint = 1;
     int page = 1;
     List<BookMark> bookMarkList = new List<BookMark>();
-    public static int NormaPrincipal = 6;
+    public static int NormaPrincipal = 13;
     public static string NormaPrincipalNombre = "NCh3395/1:2016";
     public static int TipoInforme = 1;
     public string Rendered { get; set; }
@@ -280,7 +281,7 @@ public class CreatePDFD114
         parrafo.Format.Font.Size = 10;
         row.Cells[0].MergeRight = 1;
         row.Cells[0].MergeDown = 5;
-        row.Cells[2].AddParagraph(string.Format("INSPECCIÓN FASE {0} \n Check List \n Inspección del elevador NCh440/1", ToRoman(Inspeccion.Fase)));
+        row.Cells[2].AddParagraph(string.Format("INSPECCIÓN FASE {0} \n Check List \n Inspección del elevador", ToRoman(Inspeccion.Fase)));
         row.Cells[2].MergeDown = 6;
 
         parrafo = row.Cells[3].AddParagraph("VERSIÓN");
@@ -711,13 +712,14 @@ public class CreatePDFD114
             foreach (var t in terminos)
             {
                 Paragraph termino = section.AddParagraph(t.Termino);
+                termino.Format.Font.Size = 11;
                 termino.Format.Font.Bold = true;
                 termino.Format.SpaceAfter = 2;
                 Paragraph definicion = section.AddParagraph(t.Definicion.TrimEnd());
                 definicion.Style = "Parrafo";
                 definicion.Format.LeftIndent = "1cm";
                 definicion.Format.SpaceBefore = "0.1cm";
-                definicion.Format.Alignment = ParagraphAlignment.Left;
+                definicion.Format.Alignment = ParagraphAlignment.Justify;
             }
         }
     }
@@ -1011,16 +1013,21 @@ public class CreatePDFD114
         bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint), Mark = "observacionespornorma", IsSub = true });
         // Observaciones por Norma
         var noCumplimiento = Inspeccion.Cumplimiento
-                            .Where(w => w.EvaluacionID == 3)
+                            .Where(w => w.EvaluacionID == 3 || w.EvaluacionID == 1)
+                            .Where(w => w.EvaluacionID == 3 ? w.Observacion != null || w.Fotografias.Count > 0
+                                    : w.Fotografias.Count > 0)
                             .Where(w => w.Observacion != null || w.Fotografias.Count > 0)
+                            .Where(w => w.Caracteristica.Habilitado == true)
                             .Select(s => new
                             {
                                 Requisito = s.Caracteristica.Requisito.Descripcion,
                                 Norma = s.Caracteristica.Requisito.Titulo.Norma.Nombre,
                                 Observacion = s.Observacion,
-                                Fotos = s.Fotografias.Select(f => f.URL)
+                                Fotos = s.Fotografias.Select(f => f.URL),
+                                Evaluacion = s.EvaluacionID
                             })
-                            .OrderBy(o => o.Fotos.Count() > 0)
+                            .OrderBy(o => o.Evaluacion)
+                            .ThenBy(o => o.Fotos.Count() > 0)
                             .ToList();
         if (noCumplimiento.Count == 0)
             return;
@@ -1029,7 +1036,7 @@ public class CreatePDFD114
         var numberfoto = 1;
         string pathImage = HttpContext.Current.Server.MapPath("~/fotos/");
 
-        var noCumplimientoSinFoto = noCumplimiento.Where(w => w.Fotos.Any());
+        var noCumplimientoSinFoto = noCumplimiento.Where(w => !w.Fotos.Any());
         var noCumplimientoConFoto = noCumplimiento.Where(w => w.Fotos.Any());
         var count = 0;
         if (noCumplimientoSinFoto.Count() > 0)
@@ -1037,7 +1044,9 @@ public class CreatePDFD114
             foreach (var nc in noCumplimientoSinFoto)
             {
                 var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                var complemento = nc.Evaluacion == 3
+                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
+                                    : string.Empty;
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;
@@ -1055,7 +1064,9 @@ public class CreatePDFD114
                     count = 0;
                 }
                 var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+                var complemento = nc.Evaluacion == 3
+                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
+                                    : string.Empty;
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;

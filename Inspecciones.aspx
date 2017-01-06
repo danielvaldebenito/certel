@@ -20,7 +20,7 @@
     <link href="bower_components/bootstrap-switch.css" rel="stylesheet" />
     <link href="bower_components/magnific-popup.css" rel="stylesheet" />
     <link href="css/certel.css" rel="stylesheet" />
-    <link href="css/elementos/inspecciones.css?301120162025" rel="stylesheet" />
+    <link href="css/elementos/inspecciones.css?141220161106" rel="stylesheet" />
 </head>
 <body>
     <div id="cssmenu"></div>
@@ -362,6 +362,14 @@
             <div class="form-group">
                 <label for="wod-observacion">Observación</label>
                 <textarea id="wod-observacion" maxlength="5000" class="form-control"></textarea>
+            </div>
+        </form>
+    </div>
+    <div id="edit-observacion-tecnica-dialog" class="dialog">
+        <form id="eot-form">
+            <div class="form-group">
+                <label for="eot-observacion">Observación</label>
+                <textarea id="eot-observacion" maxlength="5000" class="form-control" required></textarea>
             </div>
         </form>
     </div>

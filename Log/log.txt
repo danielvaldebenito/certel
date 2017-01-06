@@ -5959,3 +5959,236 @@ Se terminó la instrucción.
    en CreatePDFD116.ObservacionesNormativasYTecnicas() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD116.cs:línea 1012
    en CreatePDFD116..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD116.cs:línea 47
    en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 186
+
+ ERROR 
+ 12-Dec-2016 04:01:03 PM 
+ SetInforme/Aprobar 
+ System.InvalidOperationException: El objeto que acepta valores Null debe tener un valor.
+   en System.ThrowHelper.ThrowInvalidOperationException(ExceptionResource resource)
+   en System.Nullable`1.get_Value()
+   en SetInforme.Aprobar(HttpContext post, DataUser ds) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 94
+
+ ERROR 
+ 13-Dec-2016 06:48:36 PM 
+ SetInforme/Plantilla 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en CreatePDF4401.CreateVineta() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 212
+   en CreatePDF4401..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 38
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 182
+
+ ERROR 
+ 13-Dec-2016 07:00:18 PM 
+ Excepción Combobox/Aparatos 
+ System.Data.Entity.Core.EntityException: The underlying provider failed on Open. ---> System.Data.SqlClient.SqlException: Error relacionado con la red o específico de la instancia mientras se establecía una conexión con el servidor SQL Server. No se encontró el servidor o éste no estaba accesible. Compruebe que el nombre de la instancia es correcto y que SQL Server está configurado para admitir conexiones remotas. (provider: Named Pipes Provider, error: 40 - No se pudo abrir una conexión con SQL Server) ---> System.ComponentModel.Win32Exception: No se ha encontrado la ruta de acceso de la red
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, DbConnectionPool pool, String accessToken, Boolean applyTransientFaultHandling)
+   en System.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   en System.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   en System.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   en System.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   en System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   en System.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   en System.Data.ProviderBase.DbConnectionFactory.TryGetConnection(DbConnection owningConnection, TaskCompletionSource`1 retry, DbConnectionOptions userOptions, DbConnectionInternal oldConnection, DbConnectionInternal& connection)
+   en System.Data.ProviderBase.DbConnectionInternal.TryOpenConnectionInternal(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   en System.Data.ProviderBase.DbConnectionClosed.TryOpenConnection(DbConnection outerConnection, DbConnectionFactory connectionFactory, TaskCompletionSource`1 retry, DbConnectionOptions userOptions)
+   en System.Data.SqlClient.SqlConnection.TryOpenInner(TaskCompletionSource`1 retry)
+   en System.Data.SqlClient.SqlConnection.TryOpen(TaskCompletionSource`1 retry)
+   en System.Data.SqlClient.SqlConnection.Open()
+   en System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.<>c__DisplayClass1.<Execute>b__0()
+   en System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   en System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute(Action operation)
+   en System.Data.Entity.Core.EntityClient.EntityConnection.Open()
+   --- Fin del seguimiento de la pila de la excepción interna ---
+   en System.Data.Entity.Core.EntityClient.EntityConnection.Open()
+   en System.Data.Entity.Core.Objects.ObjectContext.EnsureConnection()
+   en System.Data.Entity.Core.Objects.ObjectContext.ExecuteInTransaction[T](Func`1 func, IDbExecutionStrategy executionStrategy, Boolean startLocalTransaction, Boolean releaseConnectionOnSuccess)
+   en System.Data.Entity.Core.Objects.ObjectQuery`1.<>c__DisplayClassb.<GetResults>b__9()
+   en System.Data.Entity.SqlServer.DefaultSqlExecutionStrategy.Execute[TResult](Func`1 operation)
+   en System.Data.Entity.Core.Objects.ObjectQuery`1.GetResults(Nullable`1 forMergeOption)
+   en System.Data.Entity.Core.Objects.ObjectQuery`1.<System.Collections.Generic.IEnumerable<T>.GetEnumerator>b__0()
+   en System.Lazy`1.CreateValue()
+   en System.Lazy`1.LazyInitValue()
+   en System.Lazy`1.get_Value()
+   en System.Data.Entity.Internal.LazyEnumerator`1.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Combobox.GetAparatos() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Combobox.ashx:línea 252
+
+ ERROR 
+ 13-Dec-2016 07:05:09 PM 
+ SetInforme/Plantilla 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en CreatePDF4401.ResultadosInspeccion() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 831
+   en CreatePDF4401..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 45
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 182
+
+ ERROR 
+ 13-Dec-2016 07:19:38 PM 
+ SetInforme/Plantilla 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en CreatePDF4401.ResultadosInspeccion() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 831
+   en CreatePDF4401..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDF4401.cs:línea 45
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 182
+
+ ERROR 
+ 13-Dec-2016 07:21:19 PM 
+ Inspecciones/GetCheckList 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__40(Cumplimiento cu) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 841
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Linq.Enumerable.FirstOrDefault[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3e(Caracteristica c) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 835
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3c(Requisito r) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 829
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3a(Titulo s) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 823
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__38(Norma n) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 817
+   en System.Linq.Enumerable.WhereSelectListIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.GetCheckList(Int32 inspeccionId, Int32 title) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 814
+
+ ERROR 
+ 13-Dec-2016 07:21:43 PM 
+ Inspecciones/GetCheckList 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__40(Cumplimiento cu) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 841
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Linq.Enumerable.FirstOrDefault[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3e(Caracteristica c) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 835
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3c(Requisito r) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 829
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3a(Titulo s) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 823
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__38(Norma n) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 817
+   en System.Linq.Enumerable.WhereSelectListIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.GetCheckList(Int32 inspeccionId, Int32 title) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 814
+
+ ERROR 
+ 13-Dec-2016 07:22:12 PM 
+ Inspecciones/GetCheckList 
+ System.NullReferenceException: Referencia a objeto no establecida como instancia de un objeto.
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__40(Cumplimiento cu) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 841
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Linq.Enumerable.FirstOrDefault[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3e(Caracteristica c) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 835
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3c(Requisito r) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 829
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__3a(Titulo s) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 823
+   en System.Linq.Enumerable.WhereSelectEnumerableIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.<>c__DisplayClass43.<GetCheckList>b__38(Norma n) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 817
+   en System.Linq.Enumerable.WhereSelectListIterator`2.MoveNext()
+   en System.Collections.Generic.List`1..ctor(IEnumerable`1 collection)
+   en System.Linq.Enumerable.ToList[TSource](IEnumerable`1 source)
+   en Inspecciones.GetCheckList(Int32 inspeccionId, Int32 title) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\Inspecciones.ashx:línea 814
+
+ ERROR 
+ 30-Dec-2016 01:34:12 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1299
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:35:36 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1299
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:42:31 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1299
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:44:52 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1293
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:48:41 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1293
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:51:48 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1293
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:54:35 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1293
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
+
+ ERROR 
+ 30-Dec-2016 01:57:34 PM 
+ SetInforme/Plantilla 
+ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   en System.Data.Entity.Internal.InternalContext.SaveChanges()
+   en System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   en System.Data.Entity.DbContext.SaveChanges()
+   en CreatePDFD115.Rendering() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 1293
+   en CreatePDFD115..ctor(Inspeccion inspeccion) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\App_Code\CreatePDFD115.cs:línea 52
+   en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 190
