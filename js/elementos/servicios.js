@@ -223,7 +223,7 @@ $(document).ready(function () {
                 destino: $('#ai-destino').val(),
                 permiso: $('#ai-permiso-edificacion').val(),
                 recepcion: $('#ai-recepcion-municipal').val(),
-                altura: $('#ai-altura').val(),
+                altura: $('#ai-altura').val() || 0,
                 ingeniero: $('#ai-ingeniero').val(),
                 nombre: $('#ai-nombre').val(),
                 edificio: $('#ai-edificio').val(),
