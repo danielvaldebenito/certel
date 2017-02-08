@@ -91,7 +91,7 @@ $(document).ready(function () {
             { label: '', name: 'HasNextFase', hidden: true },
             
         ],
-        sortname: 'FechaCreacion', sortorder: 'asc',
+        sortname: 'FechaCreacion', sortorder: 'desc',
         viewrecords: true,
         height: 350,
         rowNum: 30,
@@ -153,8 +153,9 @@ $(document).ready(function () {
                     break;
                 case 12:
                     if (rowData.Fase1 == '2')
-                        return;
-                    getObservacionesTecnicas(rowData);
+                        getObservacionesTecnicasF2(rowData);
+                    else
+                        getObservacionesTecnicas(rowData);
                     break;
                 case 13:
                     openCalificacion(rowData);
@@ -271,7 +272,7 @@ $(document).ready(function () {
     }
     function btnObsTec(cellvalue, options, rowObject) {
         if (rowObject.Fase1 == 2)
-            return '';
+            return '<div class="btn-grid"><i class="fa fa-commenting"></i></div>';
         return '<div class="btn-grid azul"><i class="fa fa-commenting"></i></div>';
     }
     function btnCalifica(cellvalue, options, rowObject) {
@@ -588,6 +589,21 @@ $(document).ready(function () {
             text: 'Cerrar',
             click: function () {
                 $('#observaciones-tecnicas-dialog').dialog('close');
+            }
+        }]
+    });
+    $('#observaciones-tecnicas-dialog-f2').dialog({
+        modal: true, bgiframe: false, width: 800, title: 'Observaciones Técnicas', draggable: true,
+        resizable: false, closeOnEscape: true, autoOpen: false, show: 'clip', hide: 'puff',
+        height: $(window).height(),
+        close: function () {
+            
+        },
+        buttons: [{
+            id: 'closeobs',
+            text: 'Cerrar',
+            click: function () {
+                $('#observaciones-tecnicas-dialog-f2').dialog('close');
             }
         }]
     });
@@ -1469,6 +1485,82 @@ function getObservacionesTecnicas(row) {
         }
     })
     
+}
+function getObservacionesTecnicasF2(row) {
+    $.ajax({
+        url: 'handlers/Inspecciones.ashx',
+        data: {
+            1: 'getObservacionesTecnicasF2',
+            inspeccionId: row.Id,
+        },
+        success: function (result) {
+            $('#obs-tec-list-f2').empty();
+            $(result).each(function (i, item) {
+                var li, img,div;
+                $('#obs-tec-list-f2')
+                    .append(li = $('<li>')
+                        .addClass('list-group-item')
+                        .append($('<div>')
+                            .append($('<a>', { href: item.URL })                               
+                                .append(img = $('<img>', {
+                                    class: 'img-rounded',
+                                    height: 100,
+                                    src: item.Image,
+                                    error: function () {
+                                        $(this).prop(
+                                        {
+                                            src: 'fotos/default.jpg',
+                                            height: 100
+                                        });
+                                    }
+                                })))
+                                .magnificPopup({
+                                    type: 'image',
+                                    delegate: 'a',
+                                    gallery: {
+                                        enabled: true
+                                    },
+                                })
+                            .append($('<span>')
+                                .addClass('spanObservacionf2')
+                                .text(item.Texto))
+                            .append(div = $('<div>')
+                                .addClass('btnCorregido')
+                                .addClass(item.Corregido ? 'corregido' : '')
+                                    .append($('<i>')
+                                    .addClass('fa fa-check')
+                                    )
+                                    .click(function () {
+                                       
+                                        corregirOtF2(item.Id, div, $(this).hasClass('corregido'));
+                                    }))));
+
+                if (item.Image == '')
+                    img.hide();
+                //);
+            });
+            if (!$('#observaciones-tecnicas-dialog-f2').dialog('isOpen'))
+                $('#observaciones-tecnicas-dialog-f2').dialog('open');
+        }
+    })
+
+}
+function corregirOtF2(id, div, ok)
+{
+    $.ajax({
+        url: 'handlers/Inspecciones.ashx',
+        type: 'POST',
+        data: { 1: 'corregirOtF2', id: id, ok: !ok },
+        success: function (result) {
+            if(result.done)
+            {
+                if (result.ok)
+                    div.addClass('corregido');
+                else
+                    div.removeClass('corregido');
+            }
+        }
+    })
 }
 function editarObservacionTecnica()
 {

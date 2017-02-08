@@ -382,6 +382,7 @@ public partial class ObservacionTecnica
     public int ID { get; set; }
     public string Texto { get; set; }
     public Nullable<int> InspeccionID { get; set; }
+    public Nullable<bool> CorregidoEnFase2 { get; set; }
 
     public virtual Inspeccion Inspeccion { get; set; }
     public virtual ICollection<FotografiaTecnica> FotografiaTecnica { get; set; }

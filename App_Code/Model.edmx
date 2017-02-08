@@ -149,7 +149,7 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FechaElaboracion" Type="datetime" />
           <Property Name="EstadoID" Type="int" />
-          <Property Name="FileName" Type="varchar" MaxLength="50" />
+          <Property Name="FileName" Type="varchar" MaxLength="100" />
           <Property Name="InspeccionID" Type="int" />
         </EntityType>
         <EntityType Name="Inspeccion">
@@ -242,6 +242,7 @@
           <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="Texto" Type="varchar" MaxLength="5000" />
           <Property Name="InspeccionID" Type="int" />
+          <Property Name="CorregidoEnFase2" Type="bit" />
         </EntityType>
         <EntityType Name="Pda">
           <Key>
@@ -546,6 +547,18 @@
             </Principal>
             <Dependent Role="NormasAsociadas">
               <PropertyRef Name="NormaSecundariaID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Observaci__Inspe__160F4887">
+          <End Role="Inspeccion" Type="Self.Inspeccion" Multiplicity="0..1" />
+          <End Role="ObservacionTecnica" Type="Self.ObservacionTecnica" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Inspeccion">
+              <PropertyRef Name="ID" />
+            </Principal>
+            <Dependent Role="ObservacionTecnica">
+              <PropertyRef Name="InspeccionID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -941,6 +954,10 @@
           <AssociationSet Name="FK__NormasAso__Norma__04E4BC85" Association="Self.FK__NormasAso__Norma__04E4BC85">
             <End Role="Norma" EntitySet="Norma" />
             <End Role="NormasAsociadas" EntitySet="NormasAsociadas" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Observaci__Inspe__160F4887" Association="Self.FK__Observaci__Inspe__160F4887">
+            <End Role="Inspeccion" EntitySet="Inspeccion" />
+            <End Role="ObservacionTecnica" EntitySet="ObservacionTecnica" />
           </AssociationSet>
           <AssociationSet Name="FK__TerminosY__Norma__7D439ABD" Association="Self.FK__TerminosY__Norma__7D439ABD">
             <End Role="Norma" EntitySet="Norma" />
@@ -1811,7 +1828,7 @@
           <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="FechaElaboracion" Type="DateTime" Precision="3" />
           <Property Name="EstadoID" Type="Int32" />
-          <Property Name="FileName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FileName" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="InspeccionID" Type="Int32" />
           <NavigationProperty Name="Inspeccion" Relationship="CertelModel.FK__Informe__Inspecc__5DCAEF64" FromRole="Informe" ToRole="Inspeccion" />
         </EntityType>
@@ -2020,6 +2037,7 @@
           <Property Name="InspeccionID" Type="Int32" />
           <NavigationProperty Name="Inspeccion" Relationship="CertelModel.FK__Observaci__Inspe__70DDC3D8" FromRole="ObservacionTecnica" ToRole="Inspeccion" />
           <NavigationProperty Name="FotografiaTecnica" Relationship="CertelModel.FK__Fotografi__Obser__7C4F7684" FromRole="ObservacionTecnica" ToRole="FotografiaTecnica" />
+          <Property Name="CorregidoEnFase2" Type="Boolean" />
         </EntityType>
         <Association Name="FK__Observaci__Inspe__70DDC3D8">
           <End Type="CertelModel.Inspeccion" Role="Inspeccion" Multiplicity="0..1" />
@@ -2519,6 +2537,7 @@
           <EntitySetMapping Name="ObservacionTecnica">
             <EntityTypeMapping TypeName="CertelModel.ObservacionTecnica">
               <MappingFragment StoreEntitySet="ObservacionTecnica">
+                <ScalarProperty Name="CorregidoEnFase2" ColumnName="CorregidoEnFase2" />
                 <ScalarProperty Name="InspeccionID" ColumnName="InspeccionID" />
                 <ScalarProperty Name="Texto" ColumnName="Texto" />
                 <ScalarProperty Name="ID" ColumnName="ID" />

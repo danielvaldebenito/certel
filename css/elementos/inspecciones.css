@@ -279,3 +279,43 @@ div.chl-foto.chl-active{
     right: 30px;
     cursor: pointer;
 }
+ #obs-tec-list-f2 > li > div {
+     /* Flexbox */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+ }
+
+#obs-tec-list-f2 > li > div > a {
+    flex: 1 1 10%;
+}
+ .spanObservacionf2 {
+     flex: 1 1 60%;
+ }
+.btnCorregido {
+    flex: 1 1 20%;
+    width: 100%;
+    background: #eee;
+    color: #AAA;
+    height: 100%;
+    padding: 40px;
+    margin-left: 10px;
+    border-radius: 6px;
+    font-size: 24pt;
+    text-align:center;
+    cursor: pointer;
+    border: 1px solid #eee;
+}
+.btnCorregido:hover {
+    border-color: #00C853;
+}
+.btnCorregido.corregido {
+    background: #00C853;
+    color: #FFF;
+}

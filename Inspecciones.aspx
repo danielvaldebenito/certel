@@ -20,7 +20,7 @@
     <link href="bower_components/bootstrap-switch.css" rel="stylesheet" />
     <link href="bower_components/magnific-popup.css" rel="stylesheet" />
     <link href="css/certel.css" rel="stylesheet" />
-    <link href="css/elementos/inspecciones.css?141220161106" rel="stylesheet" />
+    <link href="css/elementos/inspecciones.css?07022017" rel="stylesheet" />
 </head>
 <body>
     <div id="cssmenu"></div>
@@ -445,6 +445,14 @@
             </div>
         </div>
     </div>
+    <div id="observaciones-tecnicas-dialog-f2" class="dialog">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12"><ul id="obs-tec-list-f2" class="list-group"></ul></div>
+                
+            </div>
+        </div>
+    </div>
     <div id="add-photo-observacion-tecnica" class="dialog">
         <div class="container-fluid">
             <div class="row">
@@ -502,5 +510,5 @@
 <script src="bower_components/magnific-popup.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/certel.js"></script>
-<script src="js/elementos/inspecciones.js?301120162025"></script>
+<script src="js/elementos/inspecciones.js?07022017"></script>
 </html>

@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="772cbae2855b4027a41df7563600f4c4" Name="Diagram1" ZoomLevel="126">
+      <Diagram DiagramId="772cbae2855b4027a41df7563600f4c4" Name="Diagram1" ZoomLevel="81">
         <EntityTypeShape EntityType="CertelModel.Aparato" Width="1.5" PointX="3.75" PointY="3.375" IsExpanded="true" />
         <EntityTypeShape EntityType="CertelModel.Caracteristica" Width="1.5" PointX="6" PointY="27" IsExpanded="true" />
         <EntityTypeShape EntityType="CertelModel.Cliente" Width="1.5" PointX="1.5" PointY="19.125" IsExpanded="true" />

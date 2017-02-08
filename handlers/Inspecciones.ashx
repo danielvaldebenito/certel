@@ -43,6 +43,9 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                     dHasta = DateTime.ParseExact(hasta, "dd-MM-yyyy", null).AddDays(1);
                 data = GetInspecciones(sidx, sord, page, rows, it, dDesde, dHasta, ds);
                 break;
+            case "corregirOtF2":
+                data = CorregirOtf2(post);
+                break;
             case "getInspeccion":
                 var id = int.Parse(post.Request["id"]);
                 data = GetInspeccion(id);
@@ -109,6 +112,9 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             case "getObservacionesTecnicas":
                 data = GetObservacionesTecnicas(post);
                 break;
+            case "getObservacionesTecnicasF2":
+                data = GetObservacionesTecnicasF2(post);
+                break;
             case "removeObservacionTecnica":
                 data = RemoveObservacionTecnica(post);
                 break;
@@ -135,6 +141,26 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             using (var db = new CertelEntities())
             {
                 return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Inspecciones/Plantilla", ex);
+            return new { done = false, message = ex.ToString() };
+        }
+    }
+    private static object CorregirOtf2(HttpContext post)
+    {
+        try
+        {
+            var id = int.Parse(post.Request["id"]);
+            var ok = bool.Parse(post.Request["ok"]);
+            using (var db = new CertelEntities())
+            {
+                var ot = db.ObservacionTecnica.Find(id);
+                ot.CorregidoEnFase2 = ok;
+                db.SaveChanges();
+                return new { done = true, message = "OK", ok= ok };
             }
         }
         catch (Exception ex)
@@ -228,8 +254,13 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var inspeccion = db.Inspeccion
                                     .Find(inspeccionId);
                 inspeccion.TipoInformeID = informeId;
+                var if2 = inspeccion.Inspeccion1;
+                foreach(var i in if2)
+                {
+                    i.TipoInformeID = informeId;
+                }
                 db.SaveChanges();
-                return new { done = false, message = "OK" };
+                return new { done = true, message = "OK" };
             }
         }
         catch (Exception ex)
@@ -321,6 +352,37 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             return new { done = false, message = ex.ToString() };
         }
     }
+
+    private static object GetObservacionesTecnicasF2(HttpContext post)
+    {
+        try
+        {
+            var inspeccionId = int.Parse(post.Request["inspeccionId"]);
+            using (var db = new CertelEntities())
+            {
+                var inspeccion = db.Inspeccion.Find(inspeccionId);
+                var inspeccionF1 = inspeccion.InspeccionFase1;
+                var observaciones = db.ObservacionTecnica
+                                        .Where(w => w.InspeccionID == inspeccionF1)
+                                        .Select(s => new
+                                        {
+                                            Id = s.ID,
+                                            Texto = s.Texto,
+                                            Image = s.FotografiaTecnica.Select(ss => "fotos/" + ss.URL).FirstOrDefault() ?? string.Empty,
+                                            Corregido = s.CorregidoEnFase2
+                                        })
+                                        .ToList();
+                return observaciones;
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Inspecciones/GetObservacionesTecnicasF2", ex);
+            return new { done = false, message = ex.ToString() };
+        }
+    }
+
+
     private static object SaveCalificacion(HttpContext post, DataUser ds)
     {
         try
@@ -698,22 +760,41 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
     }
 
 
-    private static object AddOrRemoveNorma(int inspeccion, int id, bool check)
+    private static object AddOrRemoveNorma(int inspeccionId, int id, bool check)
     {
         try
         {
             using (var db = new CertelEntities())
             {
-
+                var inspeccion = db.Inspeccion.Find(inspeccionId);
+                var inspeccionesEnFase2 = inspeccion.Inspeccion1;
                 if (check)
                 {
-                    var ni = new InspeccionNorma
+                    var any = db.InspeccionNorma.Any(a => a.InspeccionID == inspeccionId && a.NormaID == id);
+                    if(!any)
                     {
-                        InspeccionID = inspeccion,
-                        NormaID = id
-                    };
-                    db.InspeccionNorma.Add(ni);
-                    db.SaveChanges();
+                        var ni = new InspeccionNorma
+                        {
+                            InspeccionID = inspeccionId,
+                            NormaID = id
+                        };
+                        db.InspeccionNorma.Add(ni);
+                        foreach(var if2 in inspeccionesEnFase2)
+                        {
+                            var any1 = db.InspeccionNorma.Any(a => a.InspeccionID == if2.ID && a.NormaID == id);
+                            if (!any1)
+                            {
+                                var ni2 = new InspeccionNorma
+                                {
+                                    InspeccionID = if2.ID,
+                                    NormaID = id
+                                };
+                                db.InspeccionNorma.Add(ni2);
+                            }
+                        }
+                        db.SaveChanges();
+                    }
+
                     //var norma = db.Norma.Find(id);
                     //var asociadas = norma.NormasAsociadas.ToList();
                     //foreach(var a in asociadas)
@@ -735,18 +816,30 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 }
                 else
                 {
+                    var ids = inspeccionesEnFase2.Select(s => (int?)s.ID);
                     var ni = db.InspeccionNorma
-                                .AsEnumerable()
                                 .Where(w => w.NormaID == id)
-                                .Where(w => w.InspeccionID == inspeccion)
-                                .ToList();
-                    if (ni.Count == 0)
+                                .Where(w => w.InspeccionID == inspeccionId);
+                    if (!ni.Any())
                         return new
                         {
                             done = false,
                             message = "Ha ocurrido un error"
                         };
-                    ni.ForEach(f => { db.InspeccionNorma.Remove(f); });
+                    foreach(var f in ni)
+                    {
+                        db.InspeccionNorma.Remove(f);
+                    }
+
+                    foreach(var if2 in inspeccionesEnFase2)
+                    {
+                        var normainsp = db.InspeccionNorma
+                                        .Where(w => w.NormaID == id)
+                                        .Where(w => w.InspeccionID == if2.ID)
+                                        .ToList();
+                        normainsp.ForEach(f => { db.InspeccionNorma.Remove(f); });
+
+                    }
                     db.SaveChanges();
                     return new
                     {
@@ -895,31 +988,39 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var noConformidadesAnteriores = db.Cumplimiento
                                                 .Where(w => w.InspeccionID == inspeccion.InspeccionFase1)
                                                 .Where(w => w.EvaluacionID == 3)
-                                                .Select(s => (int)s.CaracteristicaID)
-                                                .ToList();
-                var normasReguladoras = db.InspeccionNorma
-                                            .Where(w => w.InspeccionID == inspeccion.InspeccionFase1)
-                                            .ToList();
+                                                .Select(s => s.Caracteristica);
+                var noConformidadesAnterioresID = noConformidadesAnteriores.Select(s => s.ID);
+                List<Norma> normas = new List<Norma>();
+                var normas1 = inspeccion.InspeccionNorma.Select(s => s.Norma);
+                foreach(var n in normas1)
+                {
+                    normas.Add(n);
+                    var asociadas = n.NormasAsociadas.Select(s => s.Norma1);
+                    foreach(var a in asociadas)
+                    {
+                        normas.Add(a);
+                    }
+                }
                 var data =
-                    normasReguladoras
-                        .Where(w => w.Norma.Titulo.Any(ww => ww.Requisito.Any(www => www.Caracteristica.Any(wwww => noConformidadesAnteriores.Contains(wwww.ID)))))
+                    normas
+                        .Where(w => w.Titulo.Any(ww => ww.Requisito.Any(www => www.Caracteristica.Any(wwww => noConformidadesAnterioresID.Contains(wwww.ID)))))
                         .Select(n => new
                         {
                             Id = n.ID,
-                            Text = n.Norma.Nombre,
-                            Titulos = n.Norma.Titulo.Where(ww => ww.Requisito.Any(www => www.Caracteristica.Any(wwww => noConformidadesAnteriores.Contains(wwww.ID))))
+                            Text = n.Nombre,
+                            Titulos = n.Titulo.Where(ww => ww.Requisito.Any(www => www.Caracteristica.Any(wwww => noConformidadesAnterioresID.Contains(wwww.ID))))
                             .Select(s => new
                             {
                                 Id = s.ID,
                                 Text = s.Texto,
                                 Requisitos = s.Requisito
-                                                  .Where(w => w.Caracteristica.Any(ww => noConformidadesAnteriores.Contains(ww.ID)))
+                                                  .Where(w => w.Caracteristica.Any(ww => noConformidadesAnterioresID.Contains(ww.ID)))
                                                   .Select(r => new
                                                   {
                                                       Id = r.ID,
                                                       Text = r.Descripcion,
                                                       Caracteristicas = r.Caracteristica
-                                                                            .Where(w => noConformidadesAnteriores.Contains(w.ID))
+                                                                            .Where(w => noConformidadesAnterioresID.Contains(w.ID))
                                                                             .Select(c => new
                                                                             {
                                                                                 Id = c.ID,
@@ -1136,7 +1237,10 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 int totalPages = (int)Math.Ceiling((float)totalRecords / (float)pageSize);
                 totalPages = totalPages == 0 ? 1 : totalPages;
                 var result = list
-                    .OrderBy(sidx + " " + sord)
+                    //.OrderBy(sidx + " " + sord)
+                    .OrderBy(o => o.IT)
+                    .ThenBy(o => o.Fase)
+
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize);
                 var date = new DateTime();

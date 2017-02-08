@@ -732,8 +732,7 @@ public class CreatePDFD118
         using (var db = new CertelEntities())
         {
             var glosario = db.Evaluacion
-                            .Where(w => w.Fase == 1)
-                            .ToList();
+                            .Where(w => w.Fase == 1);
             foreach (var g in glosario)
             {
                 texto = section.AddParagraph(string.Format("{0}: {1}", g.Glosa, g.Descripcion));
@@ -743,13 +742,13 @@ public class CreatePDFD118
             var n = Inspeccion
                             .InspeccionNorma
                             .Where(w => !w.Norma.NormasAsociadas1.Any())
-                            .Where(w => w.Norma.TipoInformeID == TipoInforme)
+                            .Where(w => w.Norma.TipoInformeID == 2)
                             .Select(s => s.Norma)
                             .FirstOrDefault();
             if (n == null)
                 return;
 
-            var titulos = n.Titulo.ToList();
+            var titulos = n.Titulo;
             foreach (var t in titulos)
             {
 
@@ -802,11 +801,12 @@ public class CreatePDFD118
                 row.Cells[1].AddParagraph("REQUISITO");
                 row.Cells[3].AddParagraph("OK N/A N/C");
                 row.Cells[4].AddParagraph("OBSERVACIONES");
-                var requisitos = t.Requisito.Where(w => w.Habilitado == true).ToList();
+                var requisitos = t.Requisito.Where(w => w.Habilitado == true);
                 foreach (var r in requisitos)
                 {
-                    var cars = r.Caracteristica.Where(w => w.Habilitado == true).ToList();
-                    if (cars.Count == 0)
+                    var cars = r.Caracteristica.Where(w => w.Habilitado == true);
+                    var carsCount = cars.Count();
+                    if (carsCount == 0)
                         continue;
                     foreach (var c in cars)
                     {
@@ -819,13 +819,13 @@ public class CreatePDFD118
                         parr1.Style = "Caract";
                         cRow.Cells[0].AddParagraph(string.Format("{0}.{1}.{2}", point, subpoint, subsubpoint));
                         cRow.Cells[1].AddParagraph(string.Format("{0}", r.Descripcion));
-                        cRow.Cells[0].MergeDown = cars.Count - 1;
-                        cRow.Cells[1].MergeDown = cars.Count - 1;
+                        cRow.Cells[0].MergeDown = carsCount - 1;
+                        cRow.Cells[1].MergeDown = carsCount - 1;
 
 
                         var cumplimiento = c.Cumplimiento
-                                            .Where(w => Inspeccion.Fase == 1 
-                                                    ? w.InspeccionID == Inspeccion.ID 
+                                            .Where(w => Inspeccion.Fase == 1
+                                                    ? w.InspeccionID == Inspeccion.ID
                                                     : w.InspeccionID == Inspeccion.InspeccionFase1)
                                             .FirstOrDefault();
                         if (cumplimiento == null)
@@ -844,7 +844,7 @@ public class CreatePDFD118
                                 var corregido = c.Cumplimiento
                                                     .Where(w => w.InspeccionID == Inspeccion.ID)
                                                     .FirstOrDefault();
-                                if(corregido != null)
+                                if (corregido != null)
                                 {
                                     parr1 = cRow.Cells[4].AddParagraph(string.Format("{0} en Fase {1}", corregido.Evaluacion.Descripcion, ToRoman(Inspeccion.Fase)));
                                     parr1.Style = "Carac";
@@ -852,18 +852,18 @@ public class CreatePDFD118
                                     parr1.Format.Font.Color = Colors.Blue;
                                     parr1.Format.Shading.Color = Colors.Yellow;
                                 }
-                                
+
                             }
-                                
+
                         }
-                            
-                        
+
+
                     }
                     subsubpoint++;
                 }
                 subpoint++;
             }
-            var normasAsociadas = n.NormasAsociadas.ToList();
+            var normasAsociadas = n.NormasAsociadas;
 
             foreach (var nor in normasAsociadas)
             {
@@ -929,8 +929,9 @@ public class CreatePDFD118
                     var reqs = t.Requisito.Where(w => w.Habilitado == true).ToList();
                     foreach (var r in reqs)
                     {
-                        var cars = r.Caracteristica.Where(w => w.Habilitado == true).ToList();
-                        if (cars.Count == 0)
+                        var cars = r.Caracteristica.Where(w => w.Habilitado == true);
+                        var carsCount = cars.Count();
+                        if (carsCount == 0)
                             continue;
                         foreach (var c in cars)
                         {
@@ -945,8 +946,8 @@ public class CreatePDFD118
                             cRow.Cells[1].AddParagraph(string.Format("{0}", r.Descripcion));
 
 
-                            cRow.Cells[0].MergeDown = cars.Count - 1;
-                            cRow.Cells[1].MergeDown = cars.Count - 1;
+                            cRow.Cells[0].MergeDown = carsCount - 1;
+                            cRow.Cells[1].MergeDown = carsCount - 1;
 
                             var cumplimiento = c.Cumplimiento
                                             .Where(w => Inspeccion.Fase == 1 ? w.InspeccionID == Inspeccion.ID : w.InspeccionID == Inspeccion.InspeccionFase1).FirstOrDefault();
@@ -1003,7 +1004,8 @@ public class CreatePDFD118
         title.AddBookmark("observacionespornorma");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint), Mark = "observacionespornorma", IsSub = true });
         // Observaciones por Norma
-        var noCumplimiento = Inspeccion.Cumplimiento
+        var insp = Inspeccion.Fase == 1 ? Inspeccion : Inspeccion.Inspeccion2;
+        var noCumplimiento = insp.Cumplimiento
                             .Where(w => w.EvaluacionID == 3 || w.EvaluacionID == 1)
                             .Where(w => w.EvaluacionID == 3 ? w.Observacion != null || w.Fotografias.Count > 0
                                     : w.Fotografias.Count > 0)
@@ -1018,8 +1020,9 @@ public class CreatePDFD118
                             })
                             .OrderBy(o => o.Evaluacion)
                             .ThenBy(o => o.Fotos.Count() > 0)
-                            .ToList();
-        if (noCumplimiento.Count == 0)
+
+                            ;
+        if (!noCumplimiento.Any())
             return;
 
         var subsubpoint = 1;
@@ -1040,6 +1043,7 @@ public class CreatePDFD118
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;
+
                 subsubpoint++;
             }
             section.AddPageBreak();
@@ -1077,7 +1081,7 @@ public class CreatePDFD118
             }
         }
 
-        var observacionesTecnicas = Inspeccion.ObservacionTecnica;
+        var observacionesTecnicas = insp.ObservacionTecnica;
         if (observacionesTecnicas.Count == 0)
             return;
 
@@ -1099,6 +1103,11 @@ public class CreatePDFD118
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
                 texto.Style = "Parrafo";
                 subsubpoint++;
+
+                texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
+                texto.Style = "Parrafo";
+                texto.Format.Font.Color = Colors.AliceBlue;
+
             }
             section.AddPageBreak();
         }
@@ -1114,10 +1123,14 @@ public class CreatePDFD118
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
                 texto.Style = "Parrafo";
                 subsubpoint++;
+                texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
+                texto.Style = "Parrafo";
+                texto.Format.Font.Color = Colors.Blue;
                 var photo = o.FotografiaTecnica.Select(s => s.URL).FirstOrDefault();
                 var p = section.AddParagraph("");
                 p.Format.Alignment = ParagraphAlignment.Center;
                 Image image = section.LastParagraph.AddImage(pathImage + "/" + photo);
+
                 image.Width = "8cm";
                 var parr = section.AddParagraph("Imagen N° " + numberfoto);
                 parr.Style = "Pie";
