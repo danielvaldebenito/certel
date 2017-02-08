@@ -1294,7 +1294,7 @@ public class CreatePDFD114
     }
     public string Rendering()
     {
-        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false, PdfFontEmbedding.Always);
+        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true);
         pdfRenderer.Document = document;
         pdfRenderer.RenderDocument();
         var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
