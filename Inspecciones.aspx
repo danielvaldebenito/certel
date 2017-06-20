@@ -20,59 +20,139 @@
     <link href="bower_components/bootstrap-switch.css" rel="stylesheet" />
     <link href="bower_components/magnific-popup.css" rel="stylesheet" />
     <link href="css/certel.css" rel="stylesheet" />
-    <link href="css/elementos/inspecciones.css?07022017" rel="stylesheet" />
+    <link href="css/elementos/inspecciones.css?04042017" rel="stylesheet" />
 </head>
 <body>
     <div id="cssmenu"></div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12">
-                <div class="page-header">
-                    <h1>Inspecciones</h1>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3>FILTROS <span id="f_remove"><i class="fa fa-remove"></i></span></h3>
+                        <h3>INSPECCIONES <span id="f_remove"><i class="fa fa-remove"></i></span>
+                            <span id="add"><i class="fa fa-plus"></i></span>
+                        </h3>
                     </div>
                     <div class="panel-body" data-height-full="true">
-                        <form id="formFiltros">
-                            <div class="form-group">
-                                <label for="f_it">IT Servicio</label>
-                                <input type="text" class="form-control" id="f_it"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="f_cliente">Fecha Creación</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="f_desde" placeholder="Desde" readonly/>
-                                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input type="text" class="form-control" id="f_hasta" placeholder="Hasta" readonly/>
+                        <div class="row">
+                            <form id="formFiltros">
+                                <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                                    <input type="text" class="form-control" id="f_it" placeholder="IT Servicio" />
                                 </div>
-                                
-                            </div>
+                                <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="f_desde" placeholder="Fecha Inicio" readonly />
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input type="text" class="form-control" id="f_hasta" placeholder="Fecha Fin" readonly />
+                                    </div>
 
-                        </form>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3>REGISTROS <span id="add"><i class="fa fa-plus"></i></span></h3>
-                    </div>
-                    <div class="panel-body" data-height-full="true">
-                        <table id="grid"></table>
-                        <div id="pager"></div>
+                                </div>
+                                <div class="form-group col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                    
+                                    <button class="btn btn-default btn-block" type="submit">
+                                        <i class="fa fa-search"></i>
+                                        Buscar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="row">
+                            <table id="grid"></table>
+                            <div id="pager"></div>
+                        </div>
+
                     </div>
                 </div>
             </div>
         </div>
+            
+        </div>
+    
+    
+    <div id="copy-dialog" class="dialog">
+        <form id="copy-form">
+            <div class="row">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 align="center">Seleccione los datos que quiere copiar</h3>
+                    </div>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-basic-data" name="copy-inspection" checked value="1" />
+                            <label for="copy-basic-data">Datos básicos</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-specific-data" checked name="copy-inspection" value="2" />
+                            <label for="copy-specific-data">Datos específicos</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-norma-data" checked name="copy-inspection" value="3" />
+                            <label for="copy-norma-data">Normas y Tipo de Informe</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-check-list-data" checked name="copy-inspection" value="4" />
+                            <label for="copy-check-list-data">Check - List y Calificación</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-obs-and-photo-data" name="copy-inspection" value="5" />
+                            <label for="copy-obs-and-photo-data">Observaciones y Fotografías Normativas</label>
+                        </li>
+                        <li class="list-group-item">
+                            <input type="checkbox" id="copy-obs-tec-data" name="copy-inspection" value="6" />
+                            <label for="copy-obs-and-photo-data">Observaciones y Fotografías Técnicas</label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="form-group col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label>Inspección Destino:</label>
+                            <input type="checkbox" name="copy-new-inspection" />
+                        </div>
+                        <div class="form-group col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                            <label></label>
+                            <select class="form-control" id="copy-to-it-exist" name="copy-to" style="display: none">
+                                <option value="0">Seleccione IT...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="alert alert-danger text-center">
+                            * Recuerde que al copiar los datos en una inspección existente, éstos reemplazarán a los existentes.
+                        </div>
+                    </div>
+                </div>
+                <%--<div class="form-group">
+                    
+                </div>
+                <div class="form-group">
+                    
+                </div>
+                <div class="form-group">
+                    
+
+                </div>
+                <div class="form-group">
+                    
+
+                </div>
+                <div class="form-group">
+                    
+                </div>
+                <div class="form-group">
+                    
+                </div>--%>
+            </div>
+            
+            
+        </form>
+        </div>
+        
+        
+        
     </div>
     
-  
      <%--Foot-Page--%>
     <div class="foot-page">Certel - Certificación en Elevación S.A.</div>
 
@@ -93,38 +173,38 @@
                                 <input id="ei-it" type="text" class="form-control" placeholder="IT Servicio" disabled required maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-ubicacion">Ubicación (*)</label>
                                 <input id="ei-ubicacion" type="text" class="form-control" placeholder="Ubicación" required maxlength="300" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-edificio">Nombre del edificio (*)</label>
                                 <input id="ei-edificio" type="text" class="form-control" placeholder="Nombre del edificio" required maxlength="100" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-fecha-instalacion">Fecha Instalación</label>
                                 <input id="ei-fecha-instalacion" type="text" class="form-control" readonly />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-fecha-inspeccion">Fecha Inspección (*)</label>
                                 <input id="ei-fecha-inspeccion" type="text" class="form-control" readonly required />
                             </div>
                         </div>
 
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-aparato">Tipo de elevador (*)</label>
                                 <select class="form-control" id="ei-aparato" required></select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-tipo-funcionamiento">Tipo de funcionamiento (*)</label>
                                 <select class="form-control" id="ei-tipo-funcionamiento" required></select>
@@ -136,7 +216,7 @@
                                 <input class="form-control" type="text" id="ei-numero" required />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-nombre">Nombre del proyecto (*)</label>
                                 <input id="ei-nombre" type="text" class="form-control" placeholder="Nombre del proyecto" required maxlength="100" />
@@ -150,28 +230,40 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-permiso-edificacion">Permiso edificación</label>
                                 <input id="ei-permiso-edificacion" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-recepcion-municipal">Recepción Municipal</label>
                                 <input id="ei-recepcion-municipal" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-altura">Altura en pisos</label>
                                 <input id="ei-altura" type="number" class="form-control" min="1" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
                                 <label for="ei-ingeniero">Ingeniero Inspector (*)</label>
                                 <select class="form-control" id="ei-ingeniero" required></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ei-fec">Fecha de Emisión del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ei-fec" readonly />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ei-fvc">Fecha de Vencimiento del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ei-fvc" readonly />
                             </div>
                         </div>
                     </form>
@@ -192,37 +284,37 @@
                                 <input id="ai-it" type="text" class="form-control" placeholder="IT Servicio" required maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-ubicacion">Ubicación (*)</label>
                                 <input id="ai-ubicacion" type="text" class="form-control" placeholder="Ubicación" required maxlength="300" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-edificio">Nombre del edificio (*)</label>
                                 <input id="ai-edificio" type="text" class="form-control" placeholder="Nombre del edificio" required maxlength="300" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-fecha-instalacion">Fecha Instalación (*)</label>
                                 <input id="ai-fecha-instalacion" type="text" class="form-control" readonly required />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-fecha-inspeccion">Fecha Inspección (*)</label>
                                 <input id="ai-fecha-inspeccion" type="text" class="form-control" readonly required />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-aparato">Tipo de elevador (*)</label>
                                 <select class="form-control" id="ai-aparato" required></select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-tipo-funcionamiento">Tipo de funcionamiento (*)</label>
                                 <select class="form-control" id="ai-tipo-funcionamiento" required></select>
@@ -234,7 +326,7 @@
                                 <input id="ai-numero" type="text" class="form-control" required" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-nombre">Nombre del proyecto (*)</label>
                                 <input id="ai-nombre" type="text" class="form-control" required maxlength="50" placeholder="Nombre del proyecto" />
@@ -248,28 +340,40 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-permiso-edificacion">Permiso edificación</label>
                                 <input id="ai-permiso-edificacion" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-recepcion-municipal">Recepción Municipal</label>
                                 <input id="ai-recepcion-municipal" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-altura">Altura en pisos</label>
                                 <input id="ai-altura" type="number" class="form-control" min="1" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
-                                <label for="ai-ingeniero">Ingeniero Inspector(*)</label>
+                                <label for="ai-ingeniero">Ingeniero Inspector(*) <br /></label>
                                 <select class="form-control" id="ai-ingeniero" required></select>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ai-fec">Fecha de Emisión del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ai-fec" readonly />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ai-fvc">Fecha de Vencimiento del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ai-fvc" readonly />
                             </div>
                         </div>
                     </form>
@@ -382,7 +486,7 @@
             </div>
         </div>
 
-        <div id="panel-fotos" class="panel-flex"></div>
+        <div id="panel-fotos" class="panel-flex flex-foto"></div>
       
     </div>
     <div id="wizard-informe-dialog" class="dialog">
@@ -490,9 +594,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="alert alert-info">
-                        Ya existe un informe para esta inspección. 
-                        <br />
-                        ¿Qué desea hacer?
+                        ¿Está seguro que desea generar el informe? 
                     </div>
                 </div>
             </div>
@@ -510,5 +612,5 @@
 <script src="bower_components/magnific-popup.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/certel.js"></script>
-<script src="js/elementos/inspecciones.js?07022017"></script>
+<script src="js/elementos/inspecciones.js?16032017"></script>
 </html>

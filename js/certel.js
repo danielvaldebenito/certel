@@ -5,7 +5,7 @@ $(function () {
     
     // Ajax Start and Ajax Stop
     $(document).ajaxStart(function () {
-        $('.lock-screen').show();
+        $('.lock-screen').show().css('height', $(document).height());
     })
     .ajaxStop(function () {
         $('.lock-screen').hide();

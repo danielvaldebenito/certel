@@ -7,11 +7,38 @@ var SELECTED_OT = {};
 $(document).ready(function () {
 
     $('[name="check"]').bootstrapSwitch();
+    $('[name="copy-inspection"]').bootstrapSwitch({
+        onText: 'SÍ',
+        offText: 'NO',
+        onSwitchChange: function (event, state) {
+            var value = parseInt(event.currentTarget.value);
+            var toChange = state ? value - 1 : value + 1;
+            $('[name="copy-inspection"][value="' + toChange + '"]').bootstrapSwitch('state', state);
+            
+        }
+    });
+    $('[name="copy-new-inspection"]').bootstrapSwitch({
+        onText: 'Nueva',
+        offText: 'Existente',
+        state: true,
+        onSwitchChange: function (event, state) {
+            if(state)
+            {
+                $('#copy-to-it-new').show();
+                $('#copy-to-it-exist').hide();
+            }
+            else {
+                $('#copy-to-it-new').hide();
+                $('#copy-to-it-exist').show();
+            }
+        }
+    });
     
     // datepickers
     $('#f_desde, #f_hasta, #ai-fecha-inspeccion').datepicker();
     $('#ei-fecha-inspeccion').datepicker();
-    $('#ai-fecha-instalacion, #ei-fecha-instalacion').datepicker({ changeYear: true, yearRange: "1990:2016" });
+    var currrentYear = new Date().getFullYear()
+    $('#ai-fecha-instalacion, #ei-fecha-instalacion, #ei-fec, #ai-fec, #ei-fvc, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:" + currrentYear });
     $('#fecha_entrega').datepicker({ formatDate: 'dd-mm-yy', minDate: 0 });
     // comboboxs
     combobox($('#ai-aparato'), { 1: 'aparatos' }, 'Seleccione...');
@@ -23,6 +50,7 @@ $(document).ready(function () {
     combobox($('#ei-ingeniero'), { 1: 'inspectores' }, '');
     combobox($('#ei-tipo-funcionamiento'), { 1: 'tipoFuncionamiento' }, '');
     combobox($('#ei-destino'), { 1: 'destinoProyecto' }, 'Seleccione...');
+    
     $('#crearfase2').bootstrapSwitch({
         onText: 'SÍ',
         offText: 'NO',
@@ -58,15 +86,16 @@ $(document).ready(function () {
         autowidth: true,
         datatype: "json",
         shrinkToFix: true,
+        ajaxGridOptions: { global: false },
         colModel: [
             { label: 'Id', name: 'Id', key: true, hidden: true },
-            { label: 'IT', name: 'It', index: 'IT', width: 30, align: 'center', sortable: false },
-            { label: 'Tipo Elevador', name: 'Aparato', index: 'Aparato.Nombre', width: 30, align: 'center', sortable: true },
+            { label: 'IT', name: 'It', index: 'IT', width: 25, align: 'center', sortable: false },
+            { label: 'Elevador', name: 'Aparato', index: 'Aparato.Nombre', width: 30, align: 'center', sortable: true },
             { label: 'Funcionamiento', name: 'Funcionamiento', index: 'TipoFuncionamientoAparato.Descripcion', width: 35, align: 'center', sortable: true },
-            { label: 'Fecha Creación', name: 'FechaCreacion', index: 'FechaCreacion', width: 30, align: 'center', sortable: true },
-            { label: 'Fecha Inspección', name: 'FechaInspeccion', index: 'FechaInspeccion', width: 30, align: 'center', sortable: true },
+            { label: 'F. Creación', name: 'FechaCreacion', index: 'FechaCreacion', width: 30, align: 'center', sortable: true },
+            { label: 'F. Inspección', name: 'FechaInspeccion', index: 'FechaInspeccion', width: 30, align: 'center', sortable: true },
             { label: 'Fase', name: 'Fase', index: 'Fase', width: 10, align: 'center', sortable: true, formatter: fase },
-            
+            { label: 'Norma', name: 'Norma', index: 'Norma', width: 30, align: 'center', sortable: true },
             { label: 'Ingeniero', name: 'Ingeniero', index: 'Ingeniero', width: 30, align: 'center', sortable: true },
             //{ label: 'Estado', name: 'Estado', index: 'EstadoInspeccion.Descripcion', width: 15, formatter: btnEstado, align: 'center', sortable: true, hidden: true },
             { label: 'Editar', name: '', width: 15, formatter: btnEditar, align: 'center', sortable: false },
@@ -79,6 +108,7 @@ $(document).ready(function () {
             { label: '', name: 'Aprobar', width: 15, formatter: btnAprobado, align: 'center', sortable: false },
             { label: 'Informe', name: '', width: 15, formatter: btnInforme, align: 'center', sortable: false },
             { label: 'Fin', name: '', width: 15, formatter: btnFin, align: 'center', sortable: false },
+            { label: 'Copiar', name: '', width: 15, formatter: btnConfig, align: 'center', sortable: false },
             { label: '', name: 'ItServicio', index: 'Servicio.IT', hidden: true },
             { label: '', name: 'HasInforme', hidden: true },
             { label: '', name: 'Aprobado', hidden: true },
@@ -89,6 +119,8 @@ $(document).ready(function () {
             { label: '', name: 'Fase1', hidden: true },
             { label: '', name: 'Califica', hidden: true },
             { label: '', name: 'HasNextFase', hidden: true },
+            { label: '', name: 'Fec', hidden: true },
+            { label: '', name: 'Fvc', hidden: true }
             
         ],
         sortname: 'FechaCreacion', sortorder: 'desc',
@@ -96,7 +128,7 @@ $(document).ready(function () {
         height: 350,
         rowNum: 30,
         pager: "#pager",
-        caption: 'Inspecciones',
+        caption: 'Inspecciones registradas en el sistema',
         hoverrows: false,
         rowattr: function(rd){
             if (rd.AtrasadaEntrega)
@@ -126,22 +158,20 @@ $(document).ready(function () {
             console.log('icol', iCol);
             switch(iCol)
             {
-                case 8:
-                    if (rowData.Fase1 == '2')
-                        return;
-                    openDialogEdit(rowData);
-                    break;
                 case 9:
-                    if (rowData.Fase1 == '2')
-                        return;
-                    openDialogEspecificEdit(rowData);
+                    openDialogEdit(rowData);
                     break;
                 case 10:
                     if (rowData.Fase1 == '2')
                         return;
-                    openDialogNormas(rowData.Id, rowData.It);
+                    openDialogEspecificEdit(rowData);
                     break;
                 case 11:
+                    if (rowData.Fase1 == '2')
+                        return;
+                    openDialogNormas(rowData.Id, rowData.It);
+                    break;
+                case 12:
                     if (rowData.Fase1 == '1')
                     {
                         combobox($('#chl-f-titulo'), { 1: 'titulosInspeccion', inspeccionId: rowData.Id }, 'Seleccione un título');
@@ -151,45 +181,32 @@ $(document).ready(function () {
                     else if(rowData.Fase1 == '2')
                         openCheckListF2(rowData);
                     break;
-                case 12:
+                case 13:
                     if (rowData.Fase1 == '2')
                         getObservacionesTecnicasF2(rowData);
                     else
                         getObservacionesTecnicas(rowData);
                     break;
-                case 13:
+                case 14:
                     openCalificacion(rowData);
                     break;
-                case 15:
+                case 16:
                     var message, clase;
                     if(rowData.Aprobar == '')
                     {
                         alertify.error('Aún no se ha revisado')
                         break;
                     }
-                    if (rowData.AtrasadaEntrega == 'true')
-                    {
-                        message = "La fecha de entrega está atrasada. Edítela con la fecha real de entrega y luego apruebe el informe.";
-                        clase = 'danger';
-                    }
-                    else
-                    {
-                        message = "Confirme los datos y apruebe el informe";
-                        clase = 'info'
-                    }
-                        
-                    
-                    openAprobacionDialog(rowData, message, clase, false);
-                    break;
-                case 16:
-                    if (rowData.AtrasadaEntrega == 'true') {
-                        var message = "La fecha de entrega está atrasada. Edítela con la fecha real de entrega y luego apruebe el informe.";
-                        openAprobacionDialog(rowData, message, 'danger', true);
+                    if (rowData.Aprobado == 'true')
                         break;
-                    }
-                    openAlertGetInforme(rowData);
+                    openAprobacion(rowData);
+                    //openAprobacionDialog(rowData, message, clase, false);
                     break;
                 case 17:
+
+                    openAlertGetInforme(rowData);
+                    break;
+                case 18:
                     alertify.confirm('Certel', '¿Está seguro de finalizar esta inspección?. Esto significa que se borrará todo registro de esta.',
                         function () {
                             $.ajax({
@@ -207,8 +224,11 @@ $(document).ready(function () {
                                         alertify.alert('Certel', result.message, function () { });
                                 }
                             })
-                        }, function () { })
-                    
+                        }, function () { }).set('labels', { ok: 'Finalizar', cancel: 'Cancelar' });
+                    break;
+                case 19:
+                    $('#copy-dialog').dialog('open');
+                    break;
                 default: break;
 
             }
@@ -259,8 +279,6 @@ $(document).ready(function () {
     }
     function btnEditar(cellvalue, options, rowObject)
     {
-        if (rowObject.Fase1 == 2)
-            return '';
         return '<div class="btn-grid"><i class="fa fa-pencil" style="color: #795548"></i></div>';
     }
     function btnFin(cellvalue, options, rowObject)
@@ -315,6 +333,10 @@ $(document).ready(function () {
             color = 'gris'
         return '<div class="btn-grid ' + color +'"><i class="fa fa-file-pdf-o"></i></div>';
     }
+    function btnConfig()
+    {
+        return '<div class="btn-grid gris"><i class="fa fa fa-clone"></i></div>';
+    }
     $('#formFiltros').submit(function (e) {
         e.preventDefault();
         jQuery("#grid")
@@ -329,14 +351,7 @@ $(document).ready(function () {
             .trigger("reloadGrid");
         return false;
     })
-    .submit()
-    .find('input')
-        .keyup(function () {
-            $(this).closest('form').submit();
-        })
-        .change(function () {
-            $(this).closest('form').submit();
-        });
+    .submit();
     $('#f_remove').click(function () {
         $('#formFiltros')[0].reset();
         $('#formFiltros').submit();
@@ -376,6 +391,8 @@ $(document).ready(function () {
                 nombre: $('#ai-nombre').val(),
                 edificio: $('#ai-edificio').val(),
                 numero: $('#ai-numero').val(),
+                fec: $('#ai-fec').val(),
+                fvc: $('#ai-fvc').val()
             },
             success: function (result) {
                 if (result.done) {
@@ -424,6 +441,8 @@ $(document).ready(function () {
                 nombre: $('#ei-nombre').val(),
                 edificio: $('#ei-edificio').val(),
                 numero: $('#ei-numero').val(),
+                fec: $('#ei-fec').val(),
+                fvc: $('#ei-fvc').val(),
                 id: SELECTED_INSPECCION
             },
             success: function (result) {
@@ -536,12 +555,53 @@ $(document).ready(function () {
         return false;
 
     });
+
+    $('#copy-form').submit(function () {
+        var values = [];
+        var selected = $('[name="copy-inspection"]:checked').each(function() {
+            values.push(this.value);
+        });
+        var copyToNew = $('[name="copy-new-inspection"]').bootstrapSwitch('state');
+        console.log('copytonew', copyToNew);
+        if (values.length == 0)
+        {
+            alertify.error('Seleccione algún ítem para copiar');
+            return false;
+        }
+        if (!copyToNew && $('#copy-to-it-exist').val() == 0)
+        {
+            alertify.error('Seleccione un IT al cual desea copiar la inspección. De lo contrario seleccione la opción "Nueva"');
+            return false;
+        }
+
+        alertify.confirm('Certel', '¿Está seguro que desea copiar la inspección?. No podrá deshacer esta acción. El proceso podría durar algunos minutos.',
+                function () {
+                    $.ajax({
+                        url: 'handlers/Inspecciones.ashx',
+                        type: 'POST',
+                        data: { 1: 'copy', array: JSON.stringify(values), from: SELECTED_INSPECCION, toNew: copyToNew, to: $('#copy-to-it-exist').val() },
+                        success: function (result) {
+                            if (result.done) {
+                                alertify.alert('Certel', result.message, function () { });
+                                $('#copy-dialog').dialog('close');
+                                $('#formFiltros').submit();
+                            }
+                        }
+                    })
+                },
+                function () {
+
+                }).set('labels', { ok: 'Copiar', cancel: 'Cancelar' });
+        
+        return false;
+    });
+
     $('#add-photo').change(function () {
         setFoto(SELECTED_CARACTERISTICA, SELECTED_INSPECCION, this);
     });
     $('#add-photo2').change(function () {
         var self = this;
-        readURL(this);
+        readURL(this, 2);
         $('#add-photo-observacion-tecnica').dialog({
             modal: true, bgiframe: false, width: 'auto', title: 'Ingrese una observación', draggable: true,
             resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
@@ -607,6 +667,27 @@ $(document).ready(function () {
             }
         }]
     });
+
+    $('#copy-dialog').dialog({
+        modal: true, bgiframe: false, width: 600, title: 'Copiar Inspección', draggable: true,
+        resizable: false, closeOnEscape: true, autoOpen: false, show: 'clip', hide: 'puff',
+        open: function(){
+            combobox($('#copy-to-it-exist'), { 1: 'sameIt', id: SELECTED_INSPECCION }, 'Seleccione IT...')
+            $('[name="copy-inspection"][value="5"]').bootstrapSwitch('disabled', SELECTED_INSPECCION_ROW.Fase1 == '2');
+            $('[name="copy-inspection"][value="6"]').bootstrapSwitch('disabled', SELECTED_INSPECCION_ROW.Fase1 == '2');
+        
+        },
+        close: function () {
+
+        },
+        buttons: [{
+            id: 'copy',
+            text: 'Copiar',
+            click: function () {
+                $('#copy-form').submit();
+            }
+        }]
+    });
     // Resize Panels
     $(window).bind('resize', function (e) {
 
@@ -617,47 +698,64 @@ $(document).ready(function () {
                 gridParentWidth = $('#gbox_' + gridId).parent().width();
                 gridParentHeight = $('#gbox_' + gridId).parent().height();
                 $('#' + gridId).setGridWidth(gridParentWidth);
-                //$('#' + gridId).setGridHeight(gridParentHeight - 60);
+                $('#' + gridId).setGridHeight(gridParentHeight - 100);
             });
         }
 
     }).trigger('resize');
 
 });
+
+function openAprobacion(row)
+{
+    alertify.confirm(
+        'Certel',
+        '¿Está seguro que desea aprobar este informe?',
+        function () {
+            $.ajax(
+            {
+                url: 'handlers/Inspecciones.ashx',
+                type: 'POST',
+                data: { 1: 'soloAprobar', id: row.Id },
+                success: function (result) {
+                    if (result.done)
+                    {
+                        alertify.alert('Certel', result.message, function () { });
+                        $('#formFiltros').submit();
+                    }
+                    else
+                        alertify.error(result.message);
+                }
+            });
+        },
+        function () {
+
+        }).set('labels', { ok: 'APROBAR', cancel: 'CANCELAR' });
+}
 function openAlertGetInforme(rowData)
 {
-    if (rowData.HasInforme == 'true')
-    {
-        $('#exists-informe-dialog').dialog({
+    $('#exists-informe-dialog').dialog({
             modal: true, bgiframe: false, width: '40%', title: 'Generar Informe', draggable: true,
             resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
             close: function () {
 
             },
             buttons: {
-                "Crear Nuevamente": function () {
-                    createPdf(rowData);
+                "Crear": function () {
+                    /*if (rowData.AtrasadaEntrega == 'true' || rowData.FechaEntrega == '')
+                    {*/
+                        openAprobacionDialog(rowData, 'Indique una fecha de entrega', 'info', true);
+                    /*}
+                    else
+                    {
+                        createPdf(rowData);
+                    }*/
                 },
-                "Abrir el último informe creado": function () {
-                    startReport(rowData);
-                }
+                //"Abrir el último informe creado": function () {
+                //    startReport(rowData);
+                //}
             }
         });
-        //alertify.confirm('Certel',
-        //    'Ya existe un informe para esta inspección. ¿Qué desea hacer?',
-        //    function () {
-        //        createPdf(rowData);
-        //    },
-        //    function () {
-        //        startReport(rowData);
-        //    })
-        //    .set('labels', { ok: 'Crear Nuevamente', cancel: 'Abrir el último informe creado' });
-
-    }
-    else
-    {
-        createPdf(rowData);
-    }
 }
 function openAprobacionDialog(row, message,clase, openAlert)
 {
@@ -668,7 +766,7 @@ function openAprobacionDialog(row, message,clase, openAlert)
     $('#fecha_entrega').val(row.FechaEntrega);
     $('#destinatario').val(row.Destinatario);
     $('#aprobacion-dialog').dialog({
-        modal: true, bgiframe: false, width: '40%', title: 'Aprobar Informe', draggable: true,
+        modal: true, bgiframe: false, width: '40%', title: 'Generar Informe', draggable: true,
         resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
         close: function () {
 
@@ -676,7 +774,7 @@ function openAprobacionDialog(row, message,clase, openAlert)
         buttons: [
             {
                 id: 'aprobar',
-                text: 'Aprobar',
+                text: 'Generar',
                 click: function () {
                     if (!validateForm($('#aprobacion-form'))) {
                         alertify.error('Complete los datos requeridos');
@@ -689,44 +787,35 @@ function openAprobacionDialog(row, message,clase, openAlert)
     });
 }
 function readURL(input) {
-
     if (input.files && input.files[0]) {
+        if (!input.files[0].type.match(/image.*/)) {
+            alertify.error('Archivo no es una imagen');
+            return;
+        };
         var reader = new FileReader();
-
+        var img;
         reader.onload = function (e) {
-            $('#add-photo-observacion-tecnica-img').prop({'src': e.target.result, 'height': 400});
-        }
-
-        reader.readAsDataURL(input.files[0]);
+           $('#add-photo-observacion-tecnica-img').prop({ 'src': e.target.result, 'height': 400 });    
+        };   
     }
+    reader.readAsDataURL(input.files[0]);     
 }
 function aprobar(row, fecha, destinatario, openAlert) {
-    alertify.confirm('Certel',
-                    '¿Está seguro que quiere dar este informe por APROBADO?'
-                    , function () {
-                        $.ajax({
-                            url: 'handlers/SetInforme.ashx',
-                            method: 'post',
-                            data: { 1: 'aprobar', id: row.Id, fecha: fecha, destinatario: destinatario },
-                            success: function (result) {
-                                if (result.done) {
-                                    alertify.alert('Certel', result.message);
-                                    $('#aprobacion-dialog').dialog('close');
-                                    $('#formFiltros').submit();
-                                    if (openAlert)
-                                    {
-                                        openAlertGetInforme(row);
-                                    }
-                                }
-                                else
-                                    alertify.error(result.message)
-                            }
-                        })
-                    },
-                    function () {
-
-                    })
-                    .set('labels', { ok: 'APROBADO', cancel: 'CANCELAR' });
+    $.ajax({
+        url: 'handlers/SetInforme.ashx',
+        method: 'post',
+        data: { 1: 'aprobar', id: row.Id, fecha: fecha, destinatario: destinatario },
+        success: function (result) {
+            if (result.done) {
+                alertify.alert('Certel', result.message, function () { });
+                $('#aprobacion-dialog').dialog('close');
+                $('#formFiltros').submit();
+                createPdf(row);
+            }
+            else
+                alertify.error(result.message)
+        }
+    });
 }
 function openCalificacion(row) {
     
@@ -803,6 +892,8 @@ function openDialogEdit(row) {
                 $('#ei-nombre').val(rowData.Nombre);
                 $('#ei-numero').val(rowData.Numero);
                 $('#ei-edificio').val(rowData.Edificio);
+                $('#ei-fec').val(rowData.Fec);
+                $('#ei-fvc').val(rowData.Fvc);
                 $('#edit-inspeccion-dialog').dialog({
                     modal: true, bgiframe: false, width: '80%', title: 'Editar Inspección IT: ' + row.It, draggable: true,
                     resizable: false, closeOnEscape: true, autoOpen: true, show: 'clip', hide: 'puff',
@@ -838,12 +929,6 @@ function openDialogEdit(row) {
             }
         }
     });
-
-
-
-
-
-
 }
 function openDialogEspecificEdit(row) {
 
@@ -1011,7 +1096,7 @@ function revisar(id) {
                             data: { 1: 'revisar', id: id },
                             success: function (result) {
                                 if (result.done) {
-                                    alertify.alert('Certel', result.message);
+                                    alertify.alert('Certel', result.message, function () { });
                                     $('#formFiltros').submit();
                                     
                                 }
@@ -1419,7 +1504,7 @@ function getObservacionesTecnicas(row) {
                         .addClass('list-group-item')
                         .append($('<div>')
                         .append($('<a>')
-                            .prop('href', item.URL)
+                            .prop('href', item.Image)
                             .append(img = $('<img>')
                                 .addClass('img-rounded')
                                 .prop('height', 100)
@@ -1501,7 +1586,7 @@ function getObservacionesTecnicasF2(row) {
                     .append(li = $('<li>')
                         .addClass('list-group-item')
                         .append($('<div>')
-                            .append($('<a>', { href: item.URL })                               
+                            .append($('<a>', { href: item.Image })                               
                                 .append(img = $('<img>', {
                                     class: 'img-rounded',
                                     height: 100,
@@ -1747,11 +1832,11 @@ function setFoto(car, insp, input) {
 
     if (file.name.length < 1) {
     }
-    else if (file.size > 10000000) {
-        alert("El archivo es demasiado pesado. Intente con otro.");
+    else if (file.size > 7000000) {
+        alertify.alert('Certel', 'El archivo es demasiado pesado. Intente con otro.', function () { });
     }
     else if (file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/jpeg') {
-        alert("El archivo no tiene el formato correcto");
+        alertify.alert('Certel', 'El archivo no tiene el formato correcto', function () { });
     }
     else {
         var formData = new FormData();
@@ -1787,12 +1872,13 @@ function setFotoTecnica(obs, insp, input) {
     type = file.type;
 
     if (file.name.length < 1) {
+        alertify.error("No se ha seleccionado una imagen");
     }
-    else if (file.size > 10000000) {
-        alert("El archivo es demasiado pesado. Intente con otro.");
+    else if (file.size > 7000000) {
+        alertify.alert('Certel', "El archivo es demasiado pesado. Intente con otro.", function () { });
     }
     else if (file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/jpeg') {
-        alert("El archivo no tiene el formato correcto");
+        alertify.alert('Certel', "El archivo no tiene el formato correcto", function () { });
     }
     else {
         var formData = new FormData();
@@ -1835,6 +1921,8 @@ function seePhotos(caracteristica, inspeccion, btn)
             $('#panel-fotos').empty();
             if (result.done)
             {
+
+                
                 $(result.photos).each(function (i, item) {
                     $('#panel-fotos')
                         .append($('<div>')
@@ -1857,7 +1945,7 @@ function seePhotos(caracteristica, inspeccion, btn)
                             .append($('<img>')
                                 .addClass('img-rounded img-responsive img-thumbnail')
                                 .prop('src', item.URL)
-                                .prop('width', 180)
+                                .prop('width', 400)
                                 .error(function () {
                                     this.src = 'fotos/default.jpg'
                                 })))
@@ -1873,6 +1961,7 @@ function seePhotos(caracteristica, inspeccion, btn)
                 });
                 if (!$('#see-photos-dialog').is(':visible'))
                     $('#see-photos-dialog').dialog('open');
+                $('#add-photo').prop('disabled', true);
             }
             else
             {
@@ -1884,6 +1973,7 @@ function seePhotos(caracteristica, inspeccion, btn)
                             .text('No hay fotografías para esta característica'));
                     if (!$('#see-photos-dialog').is(':visible'))
                         $('#see-photos-dialog').dialog('open');
+                    $('#add-photo').prop('disabled', false);
                 }
                 else
                     alertify.error(result.message);
@@ -1904,7 +1994,11 @@ function removePhoto(id, btn)
         success: function(result)
         {
             if (result.done)
+            {
                 seePhotos(SELECTED_CARACTERISTICA, SELECTED_INSPECCION, btn);
+                $('#add-photo').prop('disabled', false);
+            }
+                
             else
                 alertify.error(result.message);
         }
@@ -2051,3 +2145,4 @@ function getStructInform(rowData)
         }
     });
 }
+

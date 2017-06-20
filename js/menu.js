@@ -50,7 +50,7 @@
                    .addClass('nav')
                    .addClass('navbar-nav');
 
-            var items = ["Normas", "Inspecciones", "Servicios"];
+            var items = ["Normas", "Inspecciones", "Servicios", "Clientes"];
             for (var i = 0; i < items.length; i++) {
 
                 ul.append($('<li>')

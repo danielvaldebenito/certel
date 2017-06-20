@@ -13,7 +13,7 @@
                 console.log(result);
                 if(result.done)
                 {
-                    window.location.href = 'Inspecciones.aspx';
+                    window.location.assign('Inspecciones.aspx');
                 }
                 else
                 {

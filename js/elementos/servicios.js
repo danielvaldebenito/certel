@@ -4,12 +4,16 @@ var CLOSE_DIALOG = false;
 $(document).ready(function () {
     // datepickers
     $('#f_desde, #f_hasta, #ai-fecha-inspeccion').datepicker();
-    $('#ai-fecha-instalacion').datepicker({ changeYear: true, yearRange: "1990:2016" });
+    var currrentYear = new Date().getFullYear()
+    $('#ai-fecha-instalacion, #ai-fec, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:" + currrentYear });
     // comboboxs
     combobox($('#add-cliente'), { 1: 'clientes' }, 'Seleccione...');
     combobox($('#ai-destino'), { 1: 'destinoProyecto' });
     // grid inspecciones
-
+    $('#add-cliente').select2({ width: '100%', dropdownCssClass: 'ui-dialog' });
+    $('#ac_rut').Rut({
+        format_on: 'keyup'
+    })
     $("#grid-inspecciones").jqGrid({
         url: 'handlers/Servicios.ashx',
         mtype: "POST",
@@ -179,6 +183,11 @@ $(document).ready(function () {
             alertify.error('Complete los datos requeridos');
             return;
         }
+        var validateRut = $.Rut.validar($('#ac_rut').val());
+        if (!validateRut) {
+            alertify.error('Rut Ingresado no es válido');
+            return;
+        }
         $.ajax({
             url: 'handlers/Servicios.ashx',
             data: {
@@ -194,7 +203,7 @@ $(document).ready(function () {
                     alertify.success(result.message);
                     $('#add-client-dialog').dialog('close');
                     combobox($('#add-cliente'), { 1: 'clientes' }, 'Seleccione...');
-                    $('#add-cliente').val(result.id);
+                    $('#add-cliente').val(result.id).trigger('change');
                 }
                 else
                     alertify.error(result.message);
@@ -228,6 +237,8 @@ $(document).ready(function () {
                 nombre: $('#ai-nombre').val(),
                 edificio: $('#ai-edificio').val(),
                 numero: $('#ai-numero').val(),
+                fec: $('#ai-fec').val(),
+                fvc: $('#ai-fvc').val(),
                 servicio: SELECTED_SERVICE,
                 itServicio: SELECTED_SERVICE_IT
             },

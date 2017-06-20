@@ -50,6 +50,9 @@ public class Combobox : IHttpHandler {
             case "titulosInspeccion":
                 data = GetTitulosInspeccion(post);
                 break;
+            case "sameIt":
+                data = GetItsBrothers(post);
+                break;
             default:
                 context.Response.Write("No se ha seleccionado ninguna opción");
                 break;
@@ -63,6 +66,40 @@ public class Combobox : IHttpHandler {
 
         }
 
+    }
+    private static object GetItsBrothers (HttpContext post)
+    {
+        try
+        {
+            var inspeccionId = int.Parse(post.Request["id"]);
+            using (var db = new CertelEntities())
+            {
+                var inspeccion = db.Inspeccion.Find(inspeccionId);
+                var brothers = db.Inspeccion
+                                    .Where(w => w.ServicioID == inspeccion.ServicioID)
+                                    .Where(w => w.ID != inspeccionId)
+                                    .Where(w => w.Fase == inspeccion.Fase);
+
+                var data = brothers
+                            .Distinct()
+                            .Select(s => new {
+                                Value = s.ID,
+                                Text = s.IT
+                            })
+                            .ToList();
+                return new
+                {
+                    done = true,
+                    message = "OK",
+                    data = data
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Excepción Combobox/TitulosNorma", ex);
+            return new { done = false, message = ex.ToString() };
+        }
     }
     private static object GetTitulosInspeccion (HttpContext post)
     {
@@ -334,6 +371,7 @@ public class Combobox : IHttpHandler {
             using (var db = new CertelEntities())
             {
                 var data = db.Cliente
+                            .Where(w => w.Habilitado == true)
                             .OrderBy(o => o.Nombre)
                             .Select(s => new
                             {

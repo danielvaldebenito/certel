@@ -6,11 +6,13 @@ using System.Linq;
 using System.Linq.Dynamic;
 using System.Web.Script.Serialization;
 using System.Globalization;
-public class Servicios : IHttpHandler {
+public class Servicios : IHttpHandler
+{
 
     private static readonly log4net.ILog log = log4net.LogManager.GetLogger
     (System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-    public void ProcessRequest (HttpContext context) {
+    public void ProcessRequest(HttpContext context)
+    {
         log4net.Config.DOMConfigurator.Configure();
         var post = HttpContext.Current;
         var data = new object();
@@ -19,7 +21,7 @@ public class Servicios : IHttpHandler {
         string sidx, sord;
         int page, rows;
 
-        switch(action)
+        switch (action)
         {
             case "grid":
                 sidx = post.Request["sidx"];
@@ -59,7 +61,7 @@ public class Servicios : IHttpHandler {
                 context.Response.Write("No se ha seleccionado ninguna opción");
                 break;
         }
-        if(data != null)
+        if (data != null)
         {
             var json = serializer.Serialize(data);
             context.Response.ContentType = "json";
@@ -83,7 +85,7 @@ public class Servicios : IHttpHandler {
                 var existClient = db.Cliente
                                     .Where(w => w.Rut == rut)
                                     .FirstOrDefault();
-                if(existClient == null)
+                if (existClient == null)
                 {
                     var client = new Cliente
                     {
@@ -145,6 +147,8 @@ public class Servicios : IHttpHandler {
             var nombreProyecto = post.Request["nombre"];
             var numero = post.Request["numero"];
             var nombreEdificio = post.Request["edificio"];
+            var fec = post.Request["fec"];
+            var fvc = post.Request["fvc"];
             using (var db = new CertelEntities())
             {
                 var service = db.Servicio
@@ -152,7 +156,7 @@ public class Servicios : IHttpHandler {
                                 .Select(s => new { Id = s.ID, It = s.IT, Count = s.Inspeccion.Count() })
                                 .FirstOrDefault();
 
-                if(service == null)
+                if (service == null)
                 {
                     return new
                     {
@@ -162,10 +166,7 @@ public class Servicios : IHttpHandler {
                     };
                 }
 
-                var newIt = string.Format("{0}/{1}", service.It, service.Count + 1);
-
-
-
+                var newIt = GetNewIt(service.It);
                 var inspeccion = new Inspeccion
                 {
                     Ubicacion = ubicacion,
@@ -183,18 +184,24 @@ public class Servicios : IHttpHandler {
                     EstadoID = 1,
                     Numero = numero,
                     NombreEdificio = nombreEdificio,
-                    NombreProyecto = nombreProyecto,
-
+                    NombreProyecto = nombreProyecto
                 };
                 if (fechaInspeccion != string.Empty)
                 {
                     inspeccion.FechaInspeccion = DateTime.ParseExact(fechaInspeccion, "dd-MM-yyyy", null);
                     inspeccion.FechaEntrega = DateTime.Now.AddDays(5);
                 }
-
                 if (fechaInstalacion != string.Empty)
                     inspeccion.FechaInstalacion = DateTime.ParseExact(fechaInstalacion, "dd-MM-yyyy", null);
 
+                if(fec != string.Empty)
+                {
+                    inspeccion.FechaEmisionCertificado = DateTime.ParseExact(fec, "dd-MM-yyyy", null);
+                }
+                if(fvc != string.Empty)
+                {
+                    inspeccion.FechaVencimientoCertificado = DateTime.ParseExact(fvc, "dd-MM-yyyy", null);
+                }
                 db.Inspeccion.Add(inspeccion);
                 db.SaveChanges();
                 return new
@@ -217,7 +224,25 @@ public class Servicios : IHttpHandler {
         }
     }
 
+    private static string GetNewIt(string it)
+    {
+        using (var db = new CertelEntities())
+        {
+            var service = db.Servicio.Where(w => w.IT == it).FirstOrDefault();
+            var inspecciones = service.Inspeccion;
+            var digit = 0;
+            while (true)
+            {
+                digit++;
+                var existsInspeccion = inspecciones.Any(a => int.Parse(a.IT.Split('/')[1]) == digit);
+                if (!existsInspeccion) break;
+            }
+            return string.Format("{0}/{1}", service.IT, digit);
+        }
 
+
+
+    }
     // Edit
     private static object EditInspeccion(HttpContext post)
     {
@@ -236,12 +261,14 @@ public class Servicios : IHttpHandler {
             var nombreProyecto = post.Request["nombre"];
             var numero = post.Request["numero"];
             var nombreEdificio = post.Request["edificio"];
+            var fec = post.Request["fec"];
+            var fvc = post.Request["fvc"];
             var id = int.Parse(post.Request["id"]);
             using (var db = new CertelEntities())
             {
                 var inspeccion = db.Inspeccion
                                     .Find(id);
-                if(inspeccion == null)
+                if (inspeccion == null)
                 {
                     return new
                     {
@@ -266,10 +293,18 @@ public class Servicios : IHttpHandler {
                     inspeccion.FechaInspeccion = DateTime.ParseExact(fechaInspeccion, "dd-MM-yyyy", null);
                     inspeccion.FechaEntrega = DateTime.Now.AddDays(5);
                 }
-                
+
                 if (fechaInstalacion != string.Empty)
                     inspeccion.FechaInstalacion = DateTime.ParseExact(fechaInstalacion, "dd-MM-yyyy", null);
 
+                if(fec != string.Empty)
+                {
+                    inspeccion.FechaEmisionCertificado = DateTime.ParseExact(fec, "dd-MM-yyyy", null);
+                }
+                if(fvc != string.Empty)
+                {
+                    inspeccion.FechaVencimientoCertificado = DateTime.ParseExact(fvc, "dd-MM-yyyy", null);
+                }
                 db.SaveChanges();
                 return new
                 {
@@ -365,7 +400,7 @@ public class Servicios : IHttpHandler {
                            .Select(x => new
                            {
                                Id = x.ID,
-                               FechaCreacion =  x.FechaCreacion.ToString("dd-MM-yyyy"),
+                               FechaCreacion = x.FechaCreacion.ToString("dd-MM-yyyy"),
 
                                Cliente = x.ClienteID == null ? string.Empty : x.Cliente.Nombre,
                                IT = x.IT,
@@ -434,8 +469,10 @@ public class Servicios : IHttpHandler {
             return new { done = false, message = ex.ToString() };
         }
     }
-    public bool IsReusable {
-        get {
+    public bool IsReusable
+    {
+        get
+        {
             return true;
         }
     }

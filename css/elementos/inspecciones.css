@@ -164,6 +164,7 @@ div.chl-foto.chl-active{
     width: 100%;
     
 }
+
 .fileUpload input.upload {
     position: absolute;
     top: 0;
@@ -183,10 +184,10 @@ div.chl-foto.chl-active{
 
 
 #panel-fotos .pf-foto {
-    width: 180px;
+    width: 400px;
     
     margin: 10px;
-    padding: 10px;
+    padding: 20px;
     background: #EEE;
     border-radius: 3px;
     box-shadow: 3px 3px 5px #AAA;
@@ -318,4 +319,8 @@ div.chl-foto.chl-active{
 .btnCorregido.corregido {
     background: #00C853;
     color: #FFF;
+}
+.flex-foto {
+    justify-content: center;
+    align-items: flex-start;
 }

@@ -76,25 +76,22 @@ public class SetInforme : IHttpHandler, IRequiresSessionState {
             {
                 var inspeccion = db.Inspeccion
                                     .Find(id);
-                if (inspeccion == null) return new { done = false, message = "Error" };
+                if (inspeccion == null) return new { done = false, message = "Error: Inspección no existe" };
 
-                inspeccion.FechaAprobacion = DateTime.Now;
-                inspeccion.Aprobador = ds.Usuario;
                 inspeccion.Destinatario = destinatario;
                 inspeccion.FechaEntrega = fecha;
 
                 if(inspeccion.FechaRevision == null)
                 {
                     Revisar(post, ds);
-
                 }
-                var fase2 = inspeccion.Inspeccion1.ToList();
+                var fase2 = inspeccion.Inspeccion1;
                 foreach(var f in fase2)
                 {
                     f.FechaInspeccion = fecha.AddDays((int)inspeccion.DiasPlazo);
                 }
                 db.SaveChanges();
-                return new { done = true, message = "Inspección ha sido aprobada" };
+                return new { done = true, message = "Datos ingresados correctamente!" };
             }
         }
         catch (Exception ex)
@@ -205,6 +202,7 @@ public class SetInforme : IHttpHandler, IRequiresSessionState {
                     default: return new { done = false, message = "Tipo de informe aún no ha sido creado" };
 
                 }
+                RemovePdfs();
                 return new { done = true, message = "Informe generado exitosamente", path = path };;
 
             }
@@ -215,7 +213,26 @@ public class SetInforme : IHttpHandler, IRequiresSessionState {
             return new { done = false, message = ex.ToString() };
         }
     }
-
+    private static bool RemovePdfs()
+    {
+        var pdfLifeHours = 48;
+        string basePath = HttpContext.Current.Server.MapPath("~/pdf/");
+        var dir = new DirectoryInfo(basePath);
+        FileInfo[] files = dir.GetFiles();
+        for(int i = 0; i < files.Length; i++)
+        {
+            FileInfo file = files[i];
+            if(file.Exists)
+            {
+                if((DateTime.Now - file.CreationTime).TotalHours > pdfLifeHours)
+                {
+                    if(File.Exists(basePath + file.Name))
+                        File.Delete(basePath + file.Name);
+                }
+            }
+        }
+        return true;
+    }
     private static object GetPlantillaAlcance(HttpContext post)
     {
         try

@@ -85,6 +85,7 @@
           </Key>
           <Property Name="ID" Type="int" Nullable="false" />
           <Property Name="Nombre" Type="varchar" MaxLength="100" />
+          <Property Name="NroTable" Type="int" />
         </EntityType>
         <EntityType Name="EstadoInspeccion">
           <Key>
@@ -186,6 +187,8 @@
           <Property Name="InspeccionFase1" Type="int" />
           <Property Name="DestinoProyectoID" Type="int" />
           <Property Name="CreaFaseSiguiente" Type="bit" />
+          <Property Name="FechaEmisionCertificado" Type="datetime" />
+          <Property Name="FechaVencimientoCertificado" Type="datetime" />
         </EntityType>
         <EntityType Name="InspeccionNorma">
           <Key>
@@ -1127,6 +1130,7 @@
           <Property Name="ID" Type="Int32" Nullable="false" />
           <Property Name="Nombre" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="ValoresEspecificos" Relationship="Self.FK__ValoresEs__Espec__2704CA5F" FromRole="Especificos" ToRole="ValoresEspecificos" />
+          <Property Name="NroTable" Type="Int32" />
         </EntityType>
         <EntityType Name="EstadoInspeccion">
           <Key>
@@ -1883,6 +1887,8 @@
           <Property Name="DestinoProyectoID" Type="Int32" />
           <NavigationProperty Name="DestinoProyecto" Relationship="CertelModel.FK__Inspeccio__Desti__797309D9" FromRole="Inspeccion" ToRole="DestinoProyecto" />
           <Property Name="CreaFaseSiguiente" Type="Boolean" />
+          <Property Name="FechaEmisionCertificado" Type="DateTime" Precision="3" />
+          <Property Name="FechaVencimientoCertificado" Type="DateTime" Precision="3" />
         </EntityType>
         <Association Name="FK_Inspeccion_TipoTransporte">
           <End Type="CertelModel.Aparato" Role="Aparato" Multiplicity="0..1" />
@@ -2259,6 +2265,7 @@
           <EntitySetMapping Name="Especificos">
             <EntityTypeMapping TypeName="CertelModel.Especificos">
               <MappingFragment StoreEntitySet="Especificos">
+                <ScalarProperty Name="NroTable" ColumnName="NroTable" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
                 <ScalarProperty Name="Nombre" ColumnName="Nombre" />
               </MappingFragment>
@@ -2501,6 +2508,8 @@
           <EntitySetMapping Name="Inspeccion">
             <EntityTypeMapping TypeName="CertelModel.Inspeccion">
               <MappingFragment StoreEntitySet="Inspeccion">
+                <ScalarProperty Name="FechaVencimientoCertificado" ColumnName="FechaVencimientoCertificado" />
+                <ScalarProperty Name="FechaEmisionCertificado" ColumnName="FechaEmisionCertificado" />
                 <ScalarProperty Name="CreaFaseSiguiente" ColumnName="CreaFaseSiguiente" />
                 <ScalarProperty Name="DestinoProyectoID" ColumnName="DestinoProyectoID" />
                 <ScalarProperty Name="Destinatario" ColumnName="Destinatario" />

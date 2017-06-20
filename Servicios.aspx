@@ -18,6 +18,7 @@
     <link href="bower_components/alertify.js/bootstrap.min.css" rel="stylesheet" />
     <link href="bower_components/select2/dist/css/select2.min.css" rel="stylesheet" />
     <link href="bower_components/jquery.steps.css" rel="stylesheet" />
+    <link href="css/select2.min.css" rel="stylesheet"/>
     <link href="css/certel.css" rel="stylesheet" />
     
 </head>
@@ -159,40 +160,40 @@
                         <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-it">IT (*)</label>
-                                <input id="ai-it" type="text" class="form-control" placeholder="IT Servicio" readonly maxlength="50" />
+                                <input id="ai-it" type="text" class="form-control" placeholder="IT Servicio" required maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-ubicacion">Ubicación (*)</label>
                                 <input id="ai-ubicacion" type="text" class="form-control" placeholder="Ubicación" required maxlength="300" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-edificio">Nombre del edificio (*)</label>
                                 <input id="ai-edificio" type="text" class="form-control" placeholder="Nombre del edificio" required maxlength="300" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
-                                <label for="ai-fecha-instalacion">Fecha Instalación</label>
-                                <input id="ai-fecha-instalacion" type="text" class="form-control" readonly />
+                                <label for="ai-fecha-instalacion">Fecha Instalación (*)</label>
+                                <input id="ai-fecha-instalacion" type="text" class="form-control" readonly required />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-fecha-inspeccion">Fecha Inspección (*)</label>
                                 <input id="ai-fecha-inspeccion" type="text" class="form-control" readonly required />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-aparato">Tipo de elevador (*)</label>
                                 <select class="form-control" id="ai-aparato" required></select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-tipo-funcionamiento">Tipo de funcionamiento (*)</label>
                                 <select class="form-control" id="ai-tipo-funcionamiento" required></select>
@@ -204,7 +205,7 @@
                                 <input id="ai-numero" type="text" class="form-control" required" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-12 col-md-12 col-sm-12">
+                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-nombre">Nombre del proyecto (*)</label>
                                 <input id="ai-nombre" type="text" class="form-control" required maxlength="50" placeholder="Nombre del proyecto" />
@@ -218,35 +219,47 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-permiso-edificacion">Permiso edificación</label>
                                 <input id="ai-permiso-edificacion" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-3 col-md-3 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-recepcion-municipal">Recepción Municipal</label>
                                 <input id="ai-recepcion-municipal" type="text" class="form-control" maxlength="50" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-4 col-md-4 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
                                 <label for="ai-altura">Altura en pisos</label>
                                 <input id="ai-altura" type="number" class="form-control" min="1" />
                             </div>
                         </div>
-                        <div class="col-xs-12 col-lg-8 col-md-8 col-sm-12">
+                        <div class="col-xs-12 col-lg-2 col-md-2 col-sm-12">
                             <div class="form-group">
-                                <label for="ai-ingeniero">Ingeniero Inspector(*)</label>
+                                <label for="ai-ingeniero">Ingeniero Inspector(*) <br /></label>
                                 <select class="form-control" id="ai-ingeniero" required></select>
                             </div>
                         </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ai-fec">Fecha de Emisión del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ai-fec" readonly />
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-lg-5 col-md-5 col-sm-12">
+                            <div class="form-group">
+                                <label for="ai-fvc">Fecha de Vencimiento del Certificado de Inspección de Certificación</label>
+                                <input type="text" class="form-control" id="ai-fvc" readonly />
+                            </div>
+                        </div>
                     </form>
-                    </div>
                 </div>
             </div>
-        </div>    
+        </div>
+    </div>    
     
    
 
@@ -258,7 +271,9 @@
 <script src="bower_components/jqGrid/jquery.jqGrid.min.js"></script>
 <script src="bower_components/jqGrid/grid.locale-es.js"></script>
 <script src="bower_components/alertify.js/alertify.min.js"></script>
-<script src="js/menu.js"></script>
+<script src="js/menu.js?20062017"></script>
+<script src="js/select2.full.min.js"></script>
+<script src="js/jquery.Rut.js"></script>
 <script src="js/certel.js"></script>
-<script src="js/elementos/servicios.js"></script>
+<script src="js/elementos/servicios.js?20062017"></script>
 </html>

@@ -134,6 +134,7 @@ public partial class Especificos
 
     public int ID { get; set; }
     public string Nombre { get; set; }
+    public Nullable<int> NroTable { get; set; }
 
     public virtual ICollection<ValoresEspecificos> ValoresEspecificos { get; set; }
 }
@@ -273,6 +274,8 @@ public partial class Inspeccion
     public string Destinatario { get; set; }
     public Nullable<int> DestinoProyectoID { get; set; }
     public Nullable<bool> CreaFaseSiguiente { get; set; }
+    public Nullable<System.DateTime> FechaEmisionCertificado { get; set; }
+    public Nullable<System.DateTime> FechaVencimientoCertificado { get; set; }
 
     public virtual Aparato Aparato { get; set; }
     public virtual ICollection<Cumplimiento> Cumplimiento { get; set; }

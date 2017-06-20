@@ -25,6 +25,7 @@ public class CreatePDF4401
     public static int NormaPrincipal = 9;
     public static string NormaPrincipalNombre = "NCh2840/1:2015";
     public string Rendered { get; set; }
+    public static int TipoInforme = 2;
     public CreatePDF4401(Inspeccion inspeccion)
     {
         Inspeccion = inspeccion;
@@ -227,7 +228,7 @@ public class CreatePDF4401
         {
             fechaElab = ((DateTime)Inspeccion
                             .Cumplimiento
-                            .Max(m => m.Fecha))
+                            .Min(m => m.Fecha))
                             .ToString("dd-MM-yyyy");
         }
          
@@ -530,14 +531,17 @@ public class CreatePDF4401
             {
                 Row rowe = table1.AddRow();
                 rowe.VerticalAlignment = VerticalAlignment.Center;
-                rowe.TopPadding = 5;
-                rowe.BottomPadding = 5;
+                rowe.TopPadding = 2;
+                rowe.BottomPadding = 2;
                 rowe.Cells[0].AddParagraph(eq.Tipo);
                 rowe.Cells[1].AddParagraph(eq.Ident);
                 rowe.Cells[2].AddParagraph(eq.Identificacion);
             }
         }
-        
+
+        // Tabla 2
+
+        var insp = Inspeccion.Fase == 1 ? Inspeccion : Inspeccion.Inspeccion2;
         section.AddPageBreak();
         tableTitle = section.AddParagraph("TABLA N°2");
         tableTitle.Style = "Heading2";
@@ -557,7 +561,7 @@ public class CreatePDF4401
         row2.TopPadding = 5;
         row2.BottomPadding = 5;
         row2.Cells[0].MergeRight = 1;
-        
+
         parrafo1 = row2.Cells[0].AddParagraph("CARACTERÍSTICAS GENERALES");
         row2.Cells[0].Shading.Color = Colors.LightGray;
         parrafo1.AddBookmark("caracteristicas generales");
@@ -569,46 +573,69 @@ public class CreatePDF4401
         });
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Nombre del Proyecto");
-        row2.Cells[1].AddParagraph(Inspeccion.NombreProyecto ?? string.Empty);
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.NombreProyecto ?? string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Ubicación");
-        row2.Cells[1].AddParagraph(Inspeccion.Ubicacion);
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.Ubicacion);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Destino del Proyecto");
-        row2.Cells[1].AddParagraph(Inspeccion.DestinoProyectoID == null ? string.Empty : Inspeccion.DestinoProyecto.Descripcion);
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.DestinoProyectoID == null ? string.Empty : insp.DestinoProyecto.Descripcion);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Altura en pisos");
-        row2.Cells[1].AddParagraph(Inspeccion.AlturaPisos.ToString());
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.AlturaPisos.ToString());
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Permiso Edificación");
-        row2.Cells[1].AddParagraph(Inspeccion.PermisoEdificacion ?? "Sin información");
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.PermisoEdificacion ?? "Sin información");
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Recepción Municipal");
-        row2.Cells[1].AddParagraph(Inspeccion.RecepcionMunicipal ?? "Sin información");
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
+        row2.Cells[1].AddParagraph(insp.RecepcionMunicipal ?? "Sin información");
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Número único del elevador");
-        row2.Cells[1].AddParagraph(Inspeccion.Numero ?? string.Empty);
-        row2.TopPadding = 5;
-        row2.BottomPadding = 5;
-        
+        row2.Cells[1].AddParagraph(insp.Numero ?? string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
+
+        row2 = table2.AddRow();
+        row2.Cells[0].AddParagraph("Fecha de Emisión del Certificado de Inspección de Certificación");
+        row2.Cells[1].AddParagraph(insp.FechaEmisionCertificado.HasValue ? insp.FechaEmisionCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
+
+        row2 = table2.AddRow();
+        row2.Cells[0].AddParagraph("Fecha de Vencimiento del Certificado de Inspección de Certificación");
+        row2.Cells[1].AddParagraph(insp.FechaVencimientoCertificado.HasValue ? insp.FechaVencimientoCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
+
+        // Especificos Tabla 2
+        var especificosT2 = insp.ValoresEspecificos.Where(w => w.Especificos.NroTable == 2).OrderBy(o => o.EspecificoID);
+        foreach (var e in especificosT2)
+        {
+            row2 = table2.AddRow();
+            row2.Cells[0].AddParagraph(e.Especificos.Nombre);
+            row2.Cells[1].AddParagraph(e.Valor);
+            row2.TopPadding = 2;
+            row2.BottomPadding = 2;
+        }
+
         // Especificos
         section.AddParagraph();
         tableTitle = section.AddParagraph("TABLA N°3");
@@ -629,7 +656,7 @@ public class CreatePDF4401
         row3.TopPadding = 5;
         row3.BottomPadding = 5;
         row3.Cells[0].MergeRight = 1;
-        
+
         parrafo1 = row3.Cells[0].AddParagraph("CARACTERÍSTICAS PARTICULARES");
         parrafo1.AddBookmark("caracteristicas particulares");
         bookMarkList.Add(new BookMark
@@ -642,7 +669,7 @@ public class CreatePDF4401
         row3.Borders.Color = Colors.White;
         row3 = table3.AddRow();
         row3.Cells[0].AddParagraph("CARACTERÍSTICAS DEL EQUIPO");
-        row3.Cells[1].AddParagraph(Inspeccion.Aparato.Nombre + " N° " + Inspeccion.Numero);
+        row3.Cells[1].AddParagraph(insp.Aparato.Nombre + " N° " + insp.Numero);
         row3.Shading.Color = Colors.LightGray;
         row3.Borders.Color = Colors.White;
         row3.Format.Font.Bold = true;
@@ -651,16 +678,17 @@ public class CreatePDF4401
         row3.Format.Alignment = ParagraphAlignment.Center;
         row3.VerticalAlignment = VerticalAlignment.Center;
 
-        var especificos = Inspeccion.ValoresEspecificos.ToList();
+
+        var especificos = insp.ValoresEspecificos.Where(w => w.Especificos.NroTable == 3).OrderBy(o => o.EspecificoID);
         foreach (var esp in especificos)
         {
             row3 = table3.AddRow();
             row3.Cells[0].AddParagraph(esp.Especificos.Nombre);
             row3.Cells[1].AddParagraph(esp.Valor);
-            row3.TopPadding = 5;
-            row3.BottomPadding = 5;
+            row3.TopPadding = 2;
+            row3.BottomPadding = 2;
         }
-        
+
     }
     public void ImagenCabina()
     {
@@ -741,7 +769,7 @@ public class CreatePDF4401
             var n = Inspeccion
                             .InspeccionNorma
                             .Where(w => !w.Norma.NormasAsociadas1.Any())
-                            .Where(w => w.Norma.TipoInformeID == 2)
+                            .Where(w => w.Norma.TipoInformeID == TipoInforme)
                             .Select(s => s.Norma)
                             .FirstOrDefault();
             if (n == null)
@@ -1015,7 +1043,8 @@ public class CreatePDF4401
                                 Norma = s.Caracteristica.Requisito.Titulo.Norma.Nombre,
                                 Observacion = s.Observacion,
                                 Fotos = s.Fotografias.Select(f => f.URL),
-                                Evaluacion = s.EvaluacionID
+                                Evaluacion = s.EvaluacionID,
+                                CaracteristicaId = s.CaracteristicaID
                             })
                             .OrderBy(o => o.Evaluacion)
                             .ThenBy(o => o.Fotos.Count() > 0)
@@ -1042,7 +1071,18 @@ public class CreatePDF4401
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;
-                
+                if(Inspeccion.Fase == 2 && nc.Evaluacion == 3)
+                {
+                    var ok = Inspeccion.Cumplimiento
+                                .Where(w => w.CaracteristicaID == nc.CaracteristicaId)
+                                .FirstOrDefault();
+                    if(ok != null)
+                    {
+                        texto = section.AddParagraph(ok.Evaluacion.Descripcion + " en Fase " + ToRoman(2));
+                        texto.Style = "Parrafo";
+                        texto.Format.Font.Color = Colors.Blue;
+                    }
+                }
                 subsubpoint++;
             }
             section.AddPageBreak();
@@ -1063,6 +1103,19 @@ public class CreatePDF4401
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
                 texto.Format.Alignment = ParagraphAlignment.Left;
+
+                if (Inspeccion.Fase == 2 && nc.Evaluacion == 3)
+                {
+                    var ok = Inspeccion.Cumplimiento
+                                .Where(w => w.CaracteristicaID == nc.CaracteristicaId)
+                                .FirstOrDefault();
+                    if (ok != null)
+                    {
+                        texto = section.AddParagraph(ok.Evaluacion.Descripcion + " en Fase " + ToRoman(2));
+                        texto.Style = "Parrafo";
+                        texto.Format.Font.Color = Colors.Blue;
+                    }
+                }
                 subsubpoint++;
 
                 foreach (var foto in nc.Fotos)
@@ -1103,9 +1156,13 @@ public class CreatePDF4401
                 texto.Style = "Parrafo";
                 subsubpoint++;
 
-                texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
-                texto.Style = "Parrafo";
-                texto.Format.Font.Color = Colors.AliceBlue;
+                if(Inspeccion.Fase == 2)
+                {
+                    texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
+                    texto.Style = "Parrafo";
+                    texto.Format.Font.Color = Colors.AliceBlue;
+                }
+                
                 
             }
             section.AddPageBreak();
@@ -1122,9 +1179,12 @@ public class CreatePDF4401
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
                 texto.Style = "Parrafo";
                 subsubpoint++;
-                texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
-                texto.Style = "Parrafo";
-                texto.Format.Font.Color = Colors.Blue;
+                if (Inspeccion.Fase == 2)
+                {
+                    texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
+                    texto.Style = "Parrafo";
+                    texto.Format.Font.Color = Colors.Blue;
+                }
                 var photo = o.FotografiaTecnica.Select(s => s.URL).FirstOrDefault();
                 var p = section.AddParagraph("");
                 p.Format.Alignment = ParagraphAlignment.Center;
@@ -1289,8 +1349,8 @@ public class CreatePDF4401
         pdfRenderer.RenderDocument();
         var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
         string filename = string.Format("Informe Inspeccion IT {0}_{1}.pdf", Inspeccion.IT.Replace("/", "-"), date);
-        string path = HttpContext.Current.Server.MapPath("~/pdf/") + filename;
-
+        string basePath = HttpContext.Current.Server.MapPath("~/pdf/");
+        string path = basePath + filename;
         using (var db = new CertelEntities())
         {
             var existsInforme = db.Informe
@@ -1309,6 +1369,8 @@ public class CreatePDF4401
             }
             else
             {
+                if (File.Exists(basePath + existsInforme.FileName))
+                    File.Delete(basePath + existsInforme.FileName);
                 existsInforme.FileName = filename;
                 existsInforme.FechaElaboracion = DateTime.Now;
                 existsInforme.EstadoID++;

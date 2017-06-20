@@ -9,11 +9,10 @@ using MigraDoc.DocumentObjectModel.Shapes;
 using MigraDoc.DocumentObjectModel.Tables;
 using System;
 using System.Collections.Generic;
-using System.IO;
 /// <summary>
 /// Descripción breve de CreatePDF
 /// </summary>
-public class CreatePDFD114
+public class CreatePDF4402
 {
     public static Document document;
     public static Inspeccion Inspeccion { get; set; }
@@ -21,20 +20,17 @@ public class CreatePDFD114
     int point = 1;
     int subpoint = 1;
     int page = 1;
+    public static int NormaPrincipal = 10;
+    public static int TipoInformeID = 3;
     List<BookMark> bookMarkList = new List<BookMark>();
-    public static int NormaPrincipal = 13;
-    public static string NormaPrincipalNombre = "NCh3395/1:2016";
-    public static int TipoInforme = 1;
     public string Rendered { get; set; }
-    public CreatePDFD114(Inspeccion inspeccion)
+    public CreatePDF4402(Inspeccion inspeccion)
     {
         Inspeccion = inspeccion;
         FileName = "Inspeccion IT " + Inspeccion.IT.Replace('/', '-') + ".pdf";
         document = new Document();
         document.Info.Title = "Inspección";
-        document.DefaultPageSetup.TopMargin = "7cm";
-        document.DefaultPageSetup.LeftMargin = "2cm";
-        document.DefaultPageSetup.RightMargin = "2cm";
+        document.DefaultPageSetup.TopMargin = "1cm";
         DefineStyles(document);
         DefineCover(document);
         CreateVineta();
@@ -47,7 +43,6 @@ public class CreatePDFD114
         ResultadosInspeccion();
         ObservacionesNormativasYTecnicas();
         Conclusiones();
-        
         DefineTableOfContents(document);
         Rendered = Rendering();
     }
@@ -76,7 +71,7 @@ public class CreatePDFD114
         style.Font.Color = Colors.DarkBlue;
         style.ParagraphFormat.Alignment = ParagraphAlignment.Center;
         style.ParagraphFormat.SpaceAfter = "1cm";
-        style.ParagraphFormat.SpaceBefore = "1cm";
+        style.ParagraphFormat.SpaceBefore = "2cm";
 
         style = document.Styles["Heading3"];
         style.Font.Size = 10;
@@ -115,7 +110,7 @@ public class CreatePDFD114
         style.ParagraphFormat.Font.Size = 9;
         style.ParagraphFormat.SpaceBefore = "0.1cm";
         style.ParagraphFormat.SpaceAfter = "0.1cm";
-        style.ParagraphFormat.Font.Color = Colors.Blue;
+
         // Create a new style called TOC based on style Normal
         style = document.Styles.AddStyle("TOC", "Normal");
         style.Font.Name = "Arial";
@@ -138,7 +133,8 @@ public class CreatePDFD114
         parr.Format.SpaceBefore = "5cm";
         Image image = section.LastParagraph.AddImage(pathImage + "/logo.png");
         image.Width = "6cm";
-        paragraph = section.AddParagraph(string.Format("INFORME DE AUDITORÍA TÉCNICA E INSPECCIÓN DEL {0}", Inspeccion.Aparato.Nombre.ToUpper()));
+        
+        paragraph = section.AddParagraph(string.Format("INFORME DE AUDITORÍA E INSPECCIÓN DEL {0}", Inspeccion.Aparato.Nombre.ToUpper()));
         paragraph.Format.Font.Size = 16;
         paragraph.Format.Alignment = ParagraphAlignment.Center;
         paragraph.Format.Font.Color = Colors.Black;
@@ -154,19 +150,13 @@ public class CreatePDFD114
         paragraph = section.AddParagraph(string.Format("INFORME FASE {0} {1} N° {2}", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre, Inspeccion.Numero));
         paragraph.Format.Font.Size = 12;
         paragraph.Format.Font.Bold = false;
-        paragraph.Format.SpaceAfter = "0.5cm";
+        paragraph.Format.SpaceAfter = "1cm";
         paragraph.Format.Alignment = ParagraphAlignment.Center;
 
         paragraph = section.AddParagraph(string.Format("Edificio {0}", Inspeccion.NombreEdificio));
         paragraph.Format.Font.Size = 12;
         paragraph.Format.Font.Bold = false;
-        paragraph.Format.SpaceAfter = "0.5cm";
-        paragraph.Format.Alignment = ParagraphAlignment.Center;
-
-        paragraph = section.AddParagraph(string.Format("Fecha de Inspección {0}", Inspeccion.FechaInspeccion.Value.ToString("dd-MM-yyyy")));
-        paragraph.Format.Font.Size = 11;
-        paragraph.Format.Font.Bold = false;
-        paragraph.Format.SpaceAfter = "7cm";
+        paragraph.Format.SpaceAfter = "8cm";
         paragraph.Format.Alignment = ParagraphAlignment.Center;
     }
     public void CreateVineta()
@@ -181,13 +171,13 @@ public class CreatePDFD114
         table.BottomPadding = 5;
         Column column = table.AddColumn();
         column.Format.Alignment = ParagraphAlignment.Left;
-        column.Width = 120;
-        column = table.AddColumn();
-        column.Width = 120;
-        column = table.AddColumn();
         column.Width = 125;
         column = table.AddColumn();
         column.Width = 125;
+        column = table.AddColumn();
+        column.Width = 100;
+        column = table.AddColumn();
+        column.Width = 100;
 
         table.Rows.Height = 18;
         Row row = table.AddRow();
@@ -196,13 +186,14 @@ public class CreatePDFD114
         row.Cells[0].Shading.Color = Colors.LightGray;
         row.Cells[2].AddParagraph(string.Format("REF. IT: {0}", Inspeccion.IT));
 
-        row.Cells[3].AddParagraph("EJEMPLAR N° 1");
+        row.Cells[3].AddParagraph(Inspeccion.FechaAprobacion.HasValue ? "EJEMPLAR N° 1" : "VERSIÓN PRELIMINAR");
         row.Format.Font.Bold = true;
 
         row = table.AddRow();
         row.VerticalAlignment = VerticalAlignment.Center;
         row.Format.Font.Bold = true;
         row.Cells[0].AddParagraph("ELABORADO POR");
+
         row.Cells[1].AddParagraph("REVISADO POR");
         row.Cells[2].AddParagraph("APROBADO POR");
         row.Cells[3].AddParagraph("DESTINATARIO");
@@ -223,16 +214,7 @@ public class CreatePDFD114
 
 
         row = table.AddRow();
-        var fechaElab = string.Empty;
-        if (Inspeccion.Cumplimiento.Any())
-        {
-            fechaElab = ((DateTime)Inspeccion
-                            .Cumplimiento
-                            .Min(m => m.Fecha))
-                            .ToString("dd-MM-yyyy");
-        }
-         
-        row.Cells[0].AddParagraph(fechaElab);
+        row.Cells[0].AddParagraph(Inspeccion.FechaInspeccion.HasValue ? Inspeccion.FechaInspeccion.Value.ToString("dd-MM-yyyy") : string.Empty);
         row.Cells[1].AddParagraph(Inspeccion.FechaRevision.HasValue ? Inspeccion.FechaRevision.Value.ToString("dd-MM-yyyy") : string.Empty); // Guardar fecha aprobación
         row.Cells[2].AddParagraph(Inspeccion.FechaAprobacion.HasValue ? Inspeccion.FechaAprobacion.Value.ToString("dd-MM-yyyy") : string.Empty);// Guardar fecha aprobación
         row.Cells[3].AddParagraph(Inspeccion.FechaEntrega.HasValue ? Inspeccion.FechaEntrega.Value.ToString("dd-MM-yyyy") : string.Empty); // Guardar fecha entrega
@@ -245,7 +227,7 @@ public class CreatePDFD114
         HeaderFooter header = document.LastSection.Headers.Primary;
         header.Format.Alignment = ParagraphAlignment.Center;
         header.Format.SpaceAfter = "1cm";
-
+        
         Table tableHeader = header.AddTable();
         tableHeader.Borders.Visible = true;
         tableHeader.Borders.Color = Colors.LightGray;
@@ -253,11 +235,11 @@ public class CreatePDFD114
         Column column = tableHeader.AddColumn();
         column.Width = 75;
         column = tableHeader.AddColumn();
-        column.Width = 95;
+        column.Width = 100;
         column = tableHeader.AddColumn();
         column.Width = 150;
         column = tableHeader.AddColumn();
-        column.Width = 95;
+        column.Width = 100;
         column = tableHeader.AddColumn();
         column.Width = 75;
         Row row = tableHeader.AddRow();
@@ -268,26 +250,24 @@ public class CreatePDFD114
         image.Width = 60;
         row.Format.Alignment = ParagraphAlignment.Center;
         row.VerticalAlignment = VerticalAlignment.Center;
-        row.Cells[1].AddParagraph("INSPECCIÓN NORMA NCh3395/1 \n ANEXO A\n Lista de verificación técnica para la inspección de ascensores y montacargas eléctricos existentes.");
+        row.Cells[1].AddParagraph("INSPECCIÓN DE AUDITORIA TÉCNICA E INSPECCIÓN\n Lista de verificación Norma 440/2 para la inspección de ascensores y montacargas hidráulicos.");
         row.Cells[1].MergeRight = 2;
         row.Cells[4].Format.Alignment = ParagraphAlignment.Center;
-        var p = row.Cells[4].AddParagraph();
-        p.Format.Alignment = ParagraphAlignment.Center;
-        image = p.AddImage(pathImage + "/logo_sgs.png");
+        image = row.Cells[4].AddImage(pathImage + "/logo_sgs.png");
         image.Width = 40;
         row = tableHeader.AddRow();
-        Paragraph parrafo = row.Cells[0].AddParagraph("SECCIÓN GESTIÓN E INSPECCIÓN DE PROYECTOS - SGP");
+        Paragraph parrafo =  row.Cells[0].AddParagraph("SECCIÓN GESTIÓN E INSPECCIÓN DE PROYECTOS - SGP");
         parrafo.Format.Font.Bold = true;
         parrafo.Format.Font.Size = 10;
         row.Cells[0].MergeRight = 1;
         row.Cells[0].MergeDown = 5;
-        row.Cells[2].AddParagraph(string.Format("INSPECCIÓN FASE {0} \n Check List \n Inspección del elevador", ToRoman(Inspeccion.Fase)));
+        row.Cells[2].AddParagraph(string.Format("INSPECCIÓN FASE {0} \n Check List \n Inspección del elevador \n Nch440/2", ToRoman(Inspeccion.Fase)));
         row.Cells[2].MergeDown = 6;
 
         parrafo = row.Cells[3].AddParagraph("VERSIÓN");
         parrafo.Format.Font.Bold = true;
         parrafo.Format.Font.Size = 8;
-        parrafo = row.Cells[4].AddParagraph(Inspeccion.FechaAprobacion.HasValue ? "1.0" : "Preliminar");
+        parrafo = row.Cells[4].AddParagraph("1.0");
         parrafo.Format.Font.Bold = true;
         parrafo.Format.Font.Size = 8;
         row.Format.Alignment = ParagraphAlignment.Center;
@@ -301,6 +281,8 @@ public class CreatePDFD114
         parrafo.Format.Font.Size = 8;
         row.Format.Alignment = ParagraphAlignment.Center;
         row.VerticalAlignment = VerticalAlignment.Center;
+        var revisador = Inspeccion.Revisador;
+        var aprobador = Inspeccion.Aprobador;
         
         row = tableHeader.AddRow();
         parrafo = row.Cells[3].AddParagraph("Revisado por ");
@@ -315,7 +297,7 @@ public class CreatePDFD114
         parrafo = row.Cells[3].AddParagraph("Aprobado por ");
         parrafo.Format.Font.Bold = true;
         parrafo.Format.Font.Size = 8;
-        parrafo = row.Cells[4].AddParagraph("M.J.M.");
+        parrafo = row.Cells[4].AddParagraph("M.J.M");
         parrafo.Format.Font.Bold = true;
         parrafo.Format.Font.Size = 8;
         row.Format.Alignment = ParagraphAlignment.Center;
@@ -356,7 +338,6 @@ public class CreatePDFD114
         parrafo.Format.Font.Size = 8;
         row.Format.Alignment = ParagraphAlignment.Center;
         row.VerticalAlignment = VerticalAlignment.Center;
-
 
         // Footer
         HeaderFooter footer = document.LastSection.Footers.Primary;
@@ -399,12 +380,20 @@ public class CreatePDFD114
     public void BreveIntroAndAlcance()
     {
         Section section = document.AddSection();
-        //section.PageSetup.TopMargin = 200;
+        section.PageSetup.TopMargin = 200;
         Paragraph title = section.AddParagraph(string.Format("INSPECCIÓN DE {0} N° {1} EDIFICIO {2}", Inspeccion.Aparato.Nombre.ToUpper(), Inspeccion.Numero, Inspeccion.NombreEdificio)); // Nombre edificio reemplazar
-        title.Style = "Heading2";
-
-        Paragraph parrafo = section.AddParagraph(string.Format("El presente informe se refiere a los resultados de la Inspección de la Auditoría Técnica denominada Fase {0}, realizada a la instalación del {1}, ubicado en {2}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre, Inspeccion.Ubicacion));
-        parrafo.Style = "Parrafo";
+        title.Style = "Heading1";
+        if(Inspeccion.Fase == 1)
+        {
+            Paragraph parrafo = section.AddParagraph(string.Format("El presente informe se refiere a los resultados de la Inspección de la Auditoría Técnica denominada Fase {0}, realizada a la instalación del {1}, ubicado en {2}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre, Inspeccion.Ubicacion));
+            parrafo.Style = "Parrafo";
+        }
+        else if(Inspeccion.Fase == 2)
+        {
+            Paragraph parrafo = section.AddParagraph(string.Format("El presente informe se refiere a la verificación de las mejoras a las observaciones de carácter normativo y técnico de la inspección de diagnóstico realizada en la Fase {2} de la instalación del {0}, instalado en {1}", Inspeccion.Aparato.Nombre, Inspeccion.Ubicacion, ToRoman(Inspeccion.Fase)));
+            parrafo.Style = "Parrafo";
+        }
+        
         title = section.AddParagraph(string.Format("{0}. ALCANCE", point));
         title.Style = "Heading2";
         title.AddBookmark("alcance");
@@ -415,33 +404,30 @@ public class CreatePDFD114
             IsSub = false
         });
         subpoint = 1;
-        Paragraph parrafo1 = section.AddParagraph(string.Format("{0} \tEl presente  servicio tiene por objeto, dar a conocer las observaciones necesarias a resolver bajo los criterios de inspección de la norma NCh-ISO 17020:2012 y NCh 3395/1:2016, para la auditoría del elevador del edificio de la referencia, y establecer los requisitos de seguridad que debe cumplir para proteger a los usuarios y/o a los objetos contra los diferentes riesgos de accidentes asociados a la instalación y al funcionamiento del mismo. ", point + "." + subpoint + "."));
-        parrafo1.Style = "Parrafo";
+        if(Inspeccion.Fase == 1)
+        {
+            Paragraph parrafo2 = section.AddParagraph(string.Format("{0} \tEl presente  servicio tiene por objeto, dar a conocer las observaciones necesarias a resolver bajo los criterios de inspección de la norma NCh-ISO 17020:2012, Nch440/2 y Nch2840/2, para la auditoría del elevador del edificio de la referencia, y establecer los requisitos de seguridad que debe cumplir para proteger a los usuarios y/o a los objetos contra los diferentes riesgos de accidentes asociados a la instalación y al funcionamiento del mismo. ", point + "." + subpoint + "."));
+            parrafo2.Style = "Parrafo";
+            subpoint++;
+        }
+        else if(Inspeccion.Fase == 2)
+        {
+            Paragraph parrafo2 = section.AddParagraph(string.Format("{0} \tLa inspección para la certificación denominada de Fase II, tiene por objeto verificar el estado actual de la instalación del ascensor, de las mejoras realizadas según las observaciones de carácter normativo y técnico señaladas en el informe de Fase I, para optar a la certificación del elevador, tomando como referencia la normativa chilena vigente, de acuerdo a la Ley 20.296.", point + "." + subpoint + "."));
+            parrafo2.Style = "Parrafo";
+            subpoint++;
+        }
+
+        Paragraph parrafo1 = section.AddParagraph(string.Format("{0} \tEl objetivo es verificar el estado actual del {1}, respecto de la norma  NCh440/2 y Nch2840/2, y ver si cumple con los requisitos de construcción e instalación de las mismas; comprobar que se mantiene en condiciones de funcionamiento seguro, tanto para los pasajeros, como para el personal que realiza el servicio de mantenimiento del {1}, para así comprobar si éste se puede certificar.", point + "." + subpoint + ".", Inspeccion.Aparato.Nombre));
         subpoint++;
-        parrafo1 = section.AddParagraph(string.Format("{0} \tEl objetivo es verificar el estado actual del elevador, respecto de la norma NCh3395:2016, y ver si cumple con los requisitos de construcción e instalación de las mismas; comprobar que se mantiene en condiciones de funcionamiento seguro, tanto para los usuarios del elevador, como para el personal que realiza el servicio de mantenimiento del {1}", point + "." + subpoint + ".", Inspeccion.Aparato.Nombre));
+        parrafo1.Style = "Parrafo";
+
+        parrafo1 = section.AddParagraph(string.Format("{0} \tEsta norma incluye ascensores o montacargas con sala de máquinas y ascensores o montacargas sin sala de máquinas.", point + "." + subpoint + "."));
         subpoint++;
         parrafo1.Style = "Parrafo";
-        
-        parrafo1 = section.AddParagraph(string.Format("{0} \tEsta norma especifica los requisitos de seguridad que deben cumplir los ascensores y montacargas eléctricos emplazados en edificaciones, cuyo permiso de edificación haya sido otorgado con anterioridad al 24 de octubre de 2010.", point + "." + subpoint + "."));
-        subpoint++;
-        parrafo1.Style = "Parrafo";
-        parrafo1 = section.AddParagraph(string.Format("{0} \tEsta norma incluye ascensores o montacargas con y sin sala de máquinas.", point + "." + subpoint + "."));
-        subpoint++;
-        parrafo1.Style = "Parrafo";
+
         parrafo1 = section.AddParagraph(string.Format("{0} \tCertel, en su totalidad y como organismo de inspección, tiene completa independencia e imparcialidad respecto a sus clientes, funcionando como Organismo de Inspección bajo los criterios de la norma chilena NCh ISO 17.020.", point + "." + subpoint + "."));
         parrafo1.Style = "Parrafo";
 
-    }
-
-    public string ToRoman(int number)
-    {
-        switch (number)
-        {
-            case 1: return "I";
-            case 2: return "II";
-            case 3: return "III";
-            default: return number.ToString();
-        }
     }
     public void Referencias()
     {
@@ -452,28 +438,28 @@ public class CreatePDFD114
         title.Style = "Heading1";
         title.AddBookmark("referencias");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. REFERENCIAS", point), Mark = "referencias", IsSub = false });
-        Paragraph texto = section.AddParagraph("En la evaluación se utilizó como referencia las siguientes normas:");
-        texto.Style = "Parrafo";
-        texto = section.AddParagraph(string.Format("{0}.{1}	NCh3395/1:2016 Equipos de transporte vertical - Parte 1: Requisitos para la inspección de ascensores y montacargas eléctricos existentes.", point, subpoint));
+        Paragraph texto = section.AddParagraph(string.Format("{0}.{1} Instituto Nacional de Normalización, INN: NCh440.Of2015, “Construcción – Elevadores – Requisitos de seguridad e instalación – Parte 1 o 2: “Ascensores y Montacargas Eléctricos o Hidráulicos”.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Lista de Verificación Técnica NCh3395/1:2016.", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	2.2	Instituto Nacional de Normalización, INN: NCh2840.Of2014, “Construcción – Elevadores – Procedimientos de Inspección – Parte 1 o 2: “Ascensores y Montacargas Eléctricos o Hidráulicos”.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	DI - 117. \"Procedimiento de Inspección de Elevadores\".", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	DI-117. “Procedimiento de Inspección de Elevadores”.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:Nch Elec. 4/2003 \"Instalaciones de Consumo de baja tensión\".", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	2.4	Instituto Nacional de Normalización, INN: NCh Elec. 4/2003 “Instalaciones de consumo de baja tensión”.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:Nch 3362:2014, \"Requisitos mínimos de diseño, instalación y operación para ascensores electromecánicos frente a sismos\".", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN: NCh3362:2014, “Requisitos mínimos de diseño, instalación y operación para ascensores electromecánicos frente a sismos”.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Nch ISO 17020:2012 - Evaluación de la conformidad - Requisitos para el funcionamiento de los diversos tipos de organismo que realizan inspección.", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	NCh-ISO 17020:2012 - Evaluación de la conformidad - Requisitos para el funcionamiento de los diversos tipos de organismos que realizan inspección.", point, subpoint));
+        texto.Style = "Parrafo";
+
+        texto = section.AddParagraph(string.Format("{0}.{1}	2.7 D.S.N° 47 Ordenanza General de Urbanismo y Construcciones(Actualizada al 21 de Marzo 2016 - incorpora modificaciones D.S.N° 50 D.O. 04 - 03 - 2016 - D.S.N° 37 - D.O. 21 - 03 - 2016).", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1} D.S. N° 47 Ordenanza general de urbanismo y construcciones (actualizada al 21 de marzo de 2016) - Incorpora modificaciones D.S. N° 50 D.O. 04-03-2016-D.S.N°37 - D.O. 21-03-2016).", point, subpoint));
-        texto.Style = "Parrafo";
+        
 
     }
     public void Antecedentes()
@@ -492,19 +478,16 @@ public class CreatePDFD114
         title.Format.SpaceAfter = 2;
         Paragraph parrafo = section.AddParagraph(string.Format("En esta inspección se verifica el cumplimiento de la norma NCh3395/1:2016, asociada a las instalaciones y el funcionamiento del {0}.", Inspeccion.Aparato.Nombre));
         parrafo.Style = "Parrafo";
-
-        Paragraph tableTitle = section.AddParagraph("TABLA N°1");
-        tableTitle.Style = "Heading2";
         subpoint = 1;
         Table table1 = section.AddTable();
         table1.Borders.Visible = true;
         table1.Borders.Color = Colors.LightGray;
         Column column = table1.AddColumn();
-        column.Width = 200;
+        column.Width = 150;
         column = table1.AddColumn();
-        column.Width = 90;
+        column.Width = 150;
         column = table1.AddColumn();
-        column.Width = 200;
+        column.Width = 150;
         Row row = table1.AddRow();
         row.Format.Font.Bold = true;
         row.Format.Alignment = ParagraphAlignment.Center;
@@ -512,14 +495,14 @@ public class CreatePDFD114
         row.TopPadding = 5;
         row.BottomPadding = 5;
         row.Cells[0].MergeRight = 2;
-        Paragraph parrafo1 = row.Cells[0].AddParagraph(string.Format("EQUIPOS Y HERRAMIENTAS UTILIZADOS"));
+        Paragraph parrafo1 = row.Cells[0].AddParagraph(string.Format("{0}. EQUIPOS Y HERRAMIENTAS UTILIZADOS", point + "." + subpoint));
         row.Cells[0].Shading.Color = Colors.LightGray;
         parrafo1.AddBookmark("equipos");
         bookMarkList.Add(new BookMark
         {
-            Text = "TABLA N° 1",
+            Text = string.Format("{0}. EQUIPOS Y HERRAMIENTAS UTILIZADOS", point + "." + subpoint),
             Mark = "equipos",
-            IsSub = true
+            IsSub = false
         });
         row = table1.AddRow();
         row.Format.Font.Bold = true;
@@ -540,28 +523,24 @@ public class CreatePDFD114
             {
                 Row rowe = table1.AddRow();
                 rowe.VerticalAlignment = VerticalAlignment.Center;
-                rowe.TopPadding = 2;
-                rowe.BottomPadding = 2;
+                rowe.TopPadding = 5;
+                rowe.BottomPadding = 5;
                 rowe.Cells[0].AddParagraph(eq.Tipo);
                 rowe.Cells[1].AddParagraph(eq.Ident);
                 rowe.Cells[2].AddParagraph(eq.Identificacion);
             }
         }
 
-        // Tabla 2
-
-        var insp = Inspeccion.Fase == 1 ? Inspeccion : Inspeccion.Inspeccion2;
         section.AddPageBreak();
-        tableTitle = section.AddParagraph("TABLA N°2");
-        tableTitle.Style = "Heading2";
+
         Table table2 = section.AddTable();
         table2.Borders.Visible = true;
         table2.KeepTogether = true;
         table2.Borders.Color = Colors.LightGray;
         Column column2 = table2.AddColumn();
-        column2.Width = 245;
+        column2.Width = 225;
         column2 = table2.AddColumn();
-        column2.Width = 245;
+        column2.Width = 225;
 
         Row row2 = table2.AddRow();
         row2.Format.Font.Bold = true;
@@ -570,93 +549,69 @@ public class CreatePDFD114
         row2.TopPadding = 5;
         row2.BottomPadding = 5;
         row2.Cells[0].MergeRight = 1;
-        
-        parrafo1 = row2.Cells[0].AddParagraph("CARACTERÍSTICAS GENERALES");
+        subpoint++;
+        parrafo1 = row2.Cells[0].AddParagraph(string.Format("{0}.{1}. CARACTERÍSTICAS GENERALES", point, subpoint));
         row2.Cells[0].Shading.Color = Colors.LightGray;
         parrafo1.AddBookmark("caracteristicas generales");
         bookMarkList.Add(new BookMark
         {
-            Text = "TABLA N° 2",
+            Text = string.Format("{0}.{1}. CARACTERÍSTICAS GENERALES", point, subpoint),
             Mark = "caracteristicas generales",
             IsSub = true
         });
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Nombre del Proyecto");
-        row2.Cells[1].AddParagraph(insp.NombreProyecto ?? string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.NombreProyecto ?? string.Empty);
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Ubicación");
-        row2.Cells[1].AddParagraph(insp.Ubicacion);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.Ubicacion);
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Destino del Proyecto");
-        row2.Cells[1].AddParagraph(insp.DestinoProyectoID == null ? string.Empty : insp.DestinoProyecto.Descripcion);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.DestinoProyectoID == null ? string.Empty : Inspeccion.DestinoProyecto.Descripcion);
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Altura en pisos");
-        row2.Cells[1].AddParagraph(insp.AlturaPisos.ToString());
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.AlturaPisos.ToString());
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Permiso Edificación");
-        row2.Cells[1].AddParagraph(insp.PermisoEdificacion ?? "Sin información");
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.PermisoEdificacion ?? "Sin información");
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Recepción Municipal");
-        row2.Cells[1].AddParagraph(insp.RecepcionMunicipal ?? "Sin información");
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        row2.Cells[1].AddParagraph(Inspeccion.RecepcionMunicipal ?? "Sin información");
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         row2 = table2.AddRow();
         row2.Cells[0].AddParagraph("Número único del elevador");
-        row2.Cells[1].AddParagraph(insp.Numero ?? string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
-
-        row2 = table2.AddRow();
-        row2.Cells[0].AddParagraph("Fecha de Emisión del Certificado de Inspección de Certificación");
-        row2.Cells[1].AddParagraph(insp.FechaEmisionCertificado.HasValue ? insp.FechaEmisionCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
-
-        row2 = table2.AddRow();
-        row2.Cells[0].AddParagraph("Fecha de Vencimiento del Certificado de Inspección de Certificación");
-        row2.Cells[1].AddParagraph(insp.FechaVencimientoCertificado.HasValue ? insp.FechaVencimientoCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
-
-        // Especificos Tabla 2
-        var especificosT2 = insp.ValoresEspecificos.Where(w => w.Especificos.NroTable == 2).OrderBy(o => o.EspecificoID);
-        foreach (var e in especificosT2)
-        {
-            row2 = table2.AddRow();
-            row2.Cells[0].AddParagraph(e.Especificos.Nombre);
-            row2.Cells[1].AddParagraph(e.Valor);
-            row2.TopPadding = 2;
-            row2.BottomPadding = 2;
-        }
+        row2.Cells[1].AddParagraph(Inspeccion.Numero ?? string.Empty);
+        row2.TopPadding = 5;
+        row2.BottomPadding = 5;
 
         // Especificos
         section.AddParagraph();
-        tableTitle = section.AddParagraph("TABLA N°3");
-        tableTitle.Style = "Heading2";
+
         Table table3 = section.AddTable();
         table3.KeepTogether = true;
         table3.Borders.Visible = true;
         table3.Borders.Color = Colors.LightGray;
         Column column3 = table3.AddColumn();
-        column3.Width = 245;
+        column3.Width = 225;
         column3 = table3.AddColumn();
-        column3.Width = 245;
+        column3.Width = 225;
 
         Row row3 = table3.AddRow();
         row3.Format.Font.Bold = true;
@@ -665,12 +620,12 @@ public class CreatePDFD114
         row3.TopPadding = 5;
         row3.BottomPadding = 5;
         row3.Cells[0].MergeRight = 1;
-        
-        parrafo1 = row3.Cells[0].AddParagraph("CARACTERÍSTICAS PARTICULARES");
+        subpoint++;
+        parrafo1 = row3.Cells[0].AddParagraph(string.Format("{0}.{1}. CARACTERÍSTICAS PARTICULARES", point, subpoint));
         parrafo1.AddBookmark("caracteristicas particulares");
         bookMarkList.Add(new BookMark
         {
-            Text = "TABLA N° 3",
+            Text = string.Format("{0}.{1}. CARACTERÍSTICAS PARTICULARES", point, subpoint),
             Mark = "caracteristicas particulares",
             IsSub = true
         });
@@ -678,7 +633,7 @@ public class CreatePDFD114
         row3.Borders.Color = Colors.White;
         row3 = table3.AddRow();
         row3.Cells[0].AddParagraph("CARACTERÍSTICAS DEL EQUIPO");
-        row3.Cells[1].AddParagraph(insp.Aparato.Nombre + " N° " + insp.Numero);
+        row3.Cells[1].AddParagraph(Inspeccion.Aparato.Nombre + " N° " + Inspeccion.Numero);
         row3.Shading.Color = Colors.LightGray;
         row3.Borders.Color = Colors.White;
         row3.Format.Font.Bold = true;
@@ -687,44 +642,40 @@ public class CreatePDFD114
         row3.Format.Alignment = ParagraphAlignment.Center;
         row3.VerticalAlignment = VerticalAlignment.Center;
 
-        
-        var especificos = insp.ValoresEspecificos.Where(w => w.Especificos.NroTable == 3).OrderBy(o => o.EspecificoID);
+        var especificos = Inspeccion.ValoresEspecificos.ToList();
         foreach (var esp in especificos)
         {
             row3 = table3.AddRow();
             row3.Cells[0].AddParagraph(esp.Especificos.Nombre);
             row3.Cells[1].AddParagraph(esp.Valor);
-            row3.TopPadding = 2;
-            row3.BottomPadding = 2;
+            row3.TopPadding = 5;
+            row3.BottomPadding = 5;
         }
-        
     }
     public void ImagenCabina()
     {
         Section section = document.AddSection();
-        subpoint = 1;
-        Paragraph title = section.AddParagraph(string.Format("{0}.{1} ÁREA TIPO DE LA AUDITORÍA DEL {2}", point, subpoint, Inspeccion.Aparato.Nombre.ToUpper()));
+        point++;
+        Paragraph title = section.AddParagraph(string.Format("{0}. ÁREA TIPO DE LA AUDITORÍA DEL {1}", point, Inspeccion.Aparato.Nombre.ToUpper()));
         title.Style = "Heading1";
         title.Format.SpaceAfter = "2cm";
         title.AddBookmark("imagen");
         bookMarkList.Add(new BookMark
         {
-            Text = string.Format("{0}.{1} ÁREA TIPO DE LA AUDITORÍA DEL {2}", point, subpoint, Inspeccion.Aparato.Nombre.ToUpper()),
+            Text = string.Format("{0}. ÁREA TIPO DE LA AUDITORÍA DEL {1}", point, Inspeccion.Aparato.Nombre.ToUpper()),
             Mark = "imagen",
-            IsSub = true
+            IsSub = false
         });
         string pathImage = HttpContext.Current.Server.MapPath("~/css/images/");
-        Image image = section.LastParagraph.AddImage(pathImage + "/cabina.png");
+        Image image = section.LastParagraph.AddImage(pathImage + "/cabina440-2.png");
 
     }
     public void TerminosYDefiniciones()
     {
-         subpoint++;
         Section section = document.AddSection();
         Paragraph title = section.AddParagraph(string.Format("{0}.{1}. ALGUNOS TÉRMINOS Y DEFINICIONES", point, subpoint));
         title.Style = "Heading1";
         title.AddBookmark("terminos");
-       
         bookMarkList.Add(new BookMark
         {
             Text = string.Format("{0}.{1}. ALGUNOS TÉRMINOS Y DEFINICIONES", point, subpoint),
@@ -734,19 +685,17 @@ public class CreatePDFD114
         using (var db = new CertelEntities())
         {
             var terminos = db.TerminosYDefiniciones
-                            .Where(w => w.NormaID == NormaPrincipal)
+                            .Where(w => w.NormaID == NormaPrincipal) //440-2
                             .ToList();
             foreach (var t in terminos)
             {
                 Paragraph termino = section.AddParagraph(t.Termino);
-                termino.Format.Font.Size = 11;
                 termino.Format.Font.Bold = true;
                 termino.Format.SpaceAfter = 2;
-                Paragraph definicion = section.AddParagraph(t.Definicion.TrimEnd());
+                Paragraph definicion = section.AddParagraph(t.Definicion);
                 definicion.Style = "Parrafo";
                 definicion.Format.LeftIndent = "1cm";
                 definicion.Format.SpaceBefore = "0.1cm";
-                definicion.Format.Alignment = ParagraphAlignment.Justify;
             }
         }
     }
@@ -760,31 +709,55 @@ public class CreatePDFD114
         title.Style = "Heading1";
         title.AddBookmark("resultados");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. RESULTADOS DE LA INSPECCIÓN DEL {1}", point, Inspeccion.Aparato.Nombre.ToUpper()), Mark = "resultados", IsSub = false });
-        Paragraph texto = section.AddParagraph(string.Format("A continuación se verifican las áreas de inspección y se detallan las no conformidades encontradas tras la Fase {0} del proceso de certificación en el equipo referente a la norma NCh3395, respecto a la lista de verificación técnica de la misma, las que deben ser tratadas por seguridad y para poder optar a la certificación del {1}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre));
-        texto.Style = "Parrafo";
-        texto = section.AddParagraph("GLOSARIO");
+        if(Inspeccion.Fase == 1)
+        {
+            Paragraph texto1 = section.AddParagraph(string.Format("A continuación se verifican las áreas de inspección y se detallan las no conformidades encontradas tras la Fase {0} del proceso de certificación en el equipo referente a la norma NCh440/2, respecto a la lista de verificación técnica de la NCh2840/ 2, las que deben ser tratadas por seguridad y para poder optar a la certificación del {1}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre));
+            texto1.Style = "Parrafo";
+        }
+        else if(Inspeccion.Fase == 2)
+        {
+            Paragraph texto1 = section.AddParagraph(string.Format("A continuación se verifica las áreas de inspección y no conformidades encontradas tras la Fase {0} del Servicio de Certificación en el equipo y referente a la Norma NCh440 / 2, respecto a la lista de verificación técnica de la NCh2840/ 2, las que deben ser tratadas por seguridad y para poder optar a la certificación del {1}:", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre));
+            texto1.Style = "Parrafo";
+            
+        }
+
+        Paragraph texto = section.AddParagraph("GLOSARIO");
         texto.Style = "Parrafo";
         texto.Format.Font.Bold = true;
         using (var db = new CertelEntities())
         {
             var glosario = db.Evaluacion
-                            .Where(w => w.Fase == 1);
+                            .Where(w => w.Fase == 1)
+                            .ToList();
             foreach (var g in glosario)
             {
                 texto = section.AddParagraph(string.Format("{0}: {1}", g.Glosa, g.Descripcion));
                 texto.Style = "Parrafo";
             }
-
-            var n = Inspeccion
-                            .InspeccionNorma
-                            .Where(w => !w.Norma.NormasAsociadas1.Any())
-                            .Where(w => w.Norma.TipoInformeID == TipoInforme)
-                            .Select(s => s.Norma)
-                            .FirstOrDefault();
+            Norma n;
+            if(Inspeccion.Fase == 1)
+            {
+                n = Inspeccion
+                    .InspeccionNorma
+                    .Where(w => !w.Norma.NormasAsociadas1.Any())
+                    .Where(w => w.Norma.TipoInformeID == TipoInformeID)
+                    .Select(s => s.Norma)
+                    .FirstOrDefault();
+            }
+            else
+            {
+                n = Inspeccion.Inspeccion2
+                   .InspeccionNorma
+                   .Where(w => !w.Norma.NormasAsociadas1.Any())
+                   .Where(w => w.Norma.TipoInformeID == TipoInformeID)
+                   .Select(s => s.Norma)
+                   .FirstOrDefault();
+            }
+            
             if (n == null)
-                return;
-
-            var titulos = n.Titulo;
+                return; 
+            
+            var titulos = n.Titulo.ToList();
             foreach (var t in titulos)
             {
 
@@ -803,13 +776,13 @@ public class CreatePDFD114
                 table.Borders.Color = Colors.LightGray;
                 table.KeepTogether = false;
                 Column column = table.AddColumn();
-                column.Width = 35;
+                column.Width = 50;
                 column = table.AddColumn();
-                column.Width = 75;
+                column.Width = 70;
                 column = table.AddColumn();
                 column.Width = 230;
                 column = table.AddColumn();
-                column.Width = 30;
+                column.Width = 40;
                 column = table.AddColumn();
                 column.Width = 120;
                 Row row = table.AddRow();
@@ -837,12 +810,11 @@ public class CreatePDFD114
                 row.Cells[1].AddParagraph("REQUISITO");
                 row.Cells[3].AddParagraph("OK N/A N/C");
                 row.Cells[4].AddParagraph("OBSERVACIONES");
-                var requisitos = t.Requisito.Where(w => w.Habilitado == true);
+                var requisitos = t.Requisito.Where(w => w.Habilitado == true).ToList();
                 foreach (var r in requisitos)
                 {
-                    var cars = r.Caracteristica.Where(w => w.Habilitado == true);
-                    var carsCount = cars.Count();
-                    if (carsCount == 0)
+                    var cars = r.Caracteristica.Where(w => w.Habilitado == true).ToList();
+                    if (cars.Count == 0)
                         continue;
                     foreach (var c in cars)
                     {
@@ -855,53 +827,45 @@ public class CreatePDFD114
                         parr1.Style = "Caract";
                         cRow.Cells[0].AddParagraph(string.Format("{0}.{1}.{2}", point, subpoint, subsubpoint));
                         cRow.Cells[1].AddParagraph(string.Format("{0}", r.Descripcion));
-                        cRow.Cells[0].MergeDown = carsCount - 1;
-                        cRow.Cells[1].MergeDown = carsCount - 1;
+                        cRow.Cells[0].MergeDown = cars.Count - 1;
+                        cRow.Cells[1].MergeDown = cars.Count - 1;
 
+                        Cumplimiento cumplimiento = new Cumplimiento();
+                        Cumplimiento cumplimiento2 = new Cumplimiento();
+                        if (Inspeccion.Fase == 1)
+                            cumplimiento = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.ID).FirstOrDefault();
+                        else
+                        {
+                            cumplimiento2 = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.ID).FirstOrDefault();
+                            cumplimiento = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.Inspeccion2.ID).FirstOrDefault();
+                        }
 
-                        var cumplimiento = c.Cumplimiento
-                                            .Where(w => Inspeccion.Fase == 1
-                                                    ? w.InspeccionID == Inspeccion.ID
-                                                    : w.InspeccionID == Inspeccion.InspeccionFase1)
-                                            .FirstOrDefault();
+                        
                         if (cumplimiento == null)
                             continue;
                         parr1 = cRow.Cells[3].AddParagraph(cumplimiento == null ? string.Empty : cumplimiento.Evaluacion.Glosa);
                         parr1.Style = "Parrafo";
                         parr1.Format.Alignment = ParagraphAlignment.Center;
-                        parr1 = cRow.Cells[4].AddParagraph(cumplimiento.Observacion ?? string.Empty);
-                        parr1.Style = "Carac";
+                        var glosa = string.Empty;
+                        if (cumplimiento2 != null)
+                        {
+                            if (cumplimiento2.EvaluacionID != null)
+                                glosa = cumplimiento2.Evaluacion.Descripcion;
+                        }
+                        var corregido = Inspeccion.Fase == 1 ? string.Empty : glosa;
+                        parr1 = cRow.Cells[4].AddParagraph(cumplimiento.Observacion + "\n" + corregido ?? string.Empty);
+                        parr1.Style = "Parrafo";
                         parr1.Format.Alignment = ParagraphAlignment.Justify;
                         if (cumplimiento.EvaluacionID == 3)
-                        {
                             parr1.Format.Font.Color = Colors.Blue;
-                            if (Inspeccion.Fase > 1)
-                            {
-                                var corregido = c.Cumplimiento
-                                                    .Where(w => w.InspeccionID == Inspeccion.ID)
-                                                    .FirstOrDefault();
-                                if (corregido != null)
-                                {
-                                    parr1 = cRow.Cells[4].AddParagraph(string.Format("{0} en Fase {1}", corregido.Evaluacion.Descripcion, ToRoman(Inspeccion.Fase)));
-                                    parr1.Style = "Carac";
-                                    parr1.Format.Alignment = ParagraphAlignment.Justify;
-                                    parr1.Format.Font.Color = Colors.Blue;
-                                    parr1.Format.Shading.Color = Colors.Yellow;
-                                }
-
-                            }
-
-                        }
-
-
                     }
                     subsubpoint++;
                 }
                 subpoint++;
             }
-            var normasAsociadas = n.NormasAsociadas;
-
-            foreach (var nor in normasAsociadas)
+            var normasAsociadas = n.NormasAsociadas.ToList();
+           
+            foreach(var nor in normasAsociadas)
             {
                 var na = db.Norma.Find(nor.NormaSecundariaID);
                 var titleShowed = false;
@@ -930,15 +894,15 @@ public class CreatePDFD114
                     table.Borders.Color = Colors.LightGray;
                     table.Format.KeepTogether = false;
                     Column column = table.AddColumn();
-                    column.Width = 35;
+                    column.Width = 50;
                     column = table.AddColumn();
-                    column.Width = 75;
+                    column.Width = 70;
                     column = table.AddColumn();
                     column.Width = 230;
                     column = table.AddColumn();
-                    column.Width = 30;
+                    column.Width = 40;
                     column = table.AddColumn();
-                    column.Width = 120;
+                    column.Width = 100;
                     Row row = table.AddRow();
                     row.Format.Font.Bold = true;
                     row.Format.Alignment = ParagraphAlignment.Center;
@@ -965,9 +929,8 @@ public class CreatePDFD114
                     var reqs = t.Requisito.Where(w => w.Habilitado == true).ToList();
                     foreach (var r in reqs)
                     {
-                        var cars = r.Caracteristica.Where(w => w.Habilitado == true);
-                        var carsCount = cars.Count();
-                        if (carsCount == 0)
+                        var cars = r.Caracteristica.Where(w => w.Habilitado == true).ToList();
+                        if (cars.Count == 0)
                             continue;
                         foreach (var c in cars)
                         {
@@ -977,44 +940,39 @@ public class CreatePDFD114
                             cRow.TopPadding = 0;
                             cRow.BottomPadding = 0;
                             var parr1 = cRow.Cells[2].AddParagraph(c.Descripcion);
-                            parr1.Style = "Caract";
+                            parr1.Style = "Parrafo";
                             cRow.Cells[0].AddParagraph(string.Format("{0}.{1}.{2}", point, subpoint, subsubpoint));
                             cRow.Cells[1].AddParagraph(string.Format("{0}", r.Descripcion));
 
-
-                            cRow.Cells[0].MergeDown = carsCount - 1;
-                            cRow.Cells[1].MergeDown = carsCount - 1;
-
-                            var cumplimiento = c.Cumplimiento
-                                            .Where(w => Inspeccion.Fase == 1 ? w.InspeccionID == Inspeccion.ID : w.InspeccionID == Inspeccion.InspeccionFase1).FirstOrDefault();
+                            
+                            cRow.Cells[0].MergeDown = cars.Count - 1;
+                            cRow.Cells[1].MergeDown = cars.Count - 1;
+                            Cumplimiento cumplimiento = new Cumplimiento();
+                            Cumplimiento cumplimiento2 = new Cumplimiento();
+                            if(Inspeccion.Fase == 1)
+                                cumplimiento = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.ID).FirstOrDefault();
+                            else
+                            {
+                                cumplimiento2 = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.ID).FirstOrDefault();
+                                cumplimiento = c.Cumplimiento.Where(w => w.InspeccionID == Inspeccion.Inspeccion2.ID).FirstOrDefault();  
+                            }
+                                
                             if (cumplimiento == null)
                                 continue;
                             parr1 = cRow.Cells[3].AddParagraph(cumplimiento == null ? string.Empty : cumplimiento.Evaluacion.Glosa);
                             parr1.Style = "Parrafo";
                             parr1.Format.Alignment = ParagraphAlignment.Center;
-                            parr1 = cRow.Cells[4].AddParagraph(cumplimiento.Observacion ?? string.Empty);
-                            parr1.Style = "Caract";
-                            parr1.Format.Alignment = ParagraphAlignment.Justify;
-                            if (cumplimiento.EvaluacionID == 3)
+                            var glosa = string.Empty;
+                            if(cumplimiento2 != null)
                             {
-                                parr1.Format.Font.Color = Colors.Blue;
-                                if (Inspeccion.Fase > 1)
-                                {
-                                    var corregido = c.Cumplimiento
-                                                        .Where(w => w.InspeccionID == Inspeccion.ID)
-                                                        .FirstOrDefault();
-                                    if (corregido != null)
-                                    {
-                                        parr1 = cRow.Cells[4].AddParagraph(string.Format("{0} en Fase {1}", corregido.Evaluacion.Descripcion, ToRoman(Inspeccion.Fase)));
-                                        parr1.Style = "Carac";
-                                        parr1.Format.Alignment = ParagraphAlignment.Justify;
-                                        parr1.Format.Font.Color = Colors.Blue;
-                                        parr1.Format.Shading.Color = Colors.Yellow;
-                                    }
-
-                                }
-
+                                if (cumplimiento2.EvaluacionID != null)
+                                    glosa = cumplimiento2.Evaluacion.Glosa;
                             }
+                            var corregido = Inspeccion.Fase == 1 ? string.Empty : glosa;
+
+                            parr1 = cRow.Cells[4].AddParagraph("Observacion");
+                            parr1.Style = "Parrafo";
+                            parr1.Format.Alignment = ParagraphAlignment.Center;
                         }
                         subsubpoint++;
                     }
@@ -1025,6 +983,7 @@ public class CreatePDFD114
     }
     public void ObservacionesNormativasYTecnicas()
     {
+        
         Section section = document.AddSection();
         point++;
         subpoint = 1;
@@ -1032,301 +991,148 @@ public class CreatePDFD114
         title.Style = "Heading1";
         title.AddBookmark("observaciones");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. OBSERVACIONES NORMATIVAS Y TÉCNICAS", point), Mark = "observaciones", IsSub = false });
-
-        Paragraph texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que el elevador quede en norma, y pueda ser certificado:", Inspeccion.Aparato.Nombre));
+        Paragraph texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que el {0} quede en norma, y pueda ser certificado:", Inspeccion.Aparato.Nombre));
         texto.Style = "Parrafo";
-        title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint));
-        title.Style = "Heading2";
-        title.AddBookmark("observacionespornorma");
-        bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint), Mark = "observacionespornorma", IsSub = true });
-        // Observaciones por Norma
-        var insp = Inspeccion.Fase == 1 ? Inspeccion : Inspeccion.Inspeccion2;
-        var noCumplimiento = insp.Cumplimiento
-                            .Where(w => w.EvaluacionID == 3 || w.EvaluacionID == 1)
-                            .Where(w => w.EvaluacionID == 3 ? w.Observacion != null || w.Fotografias.Count > 0
-                                    : w.Fotografias.Count > 0)
-                            .Where(w => w.Caracteristica.Habilitado == true)
+        var noCumplimiento = Inspeccion.Cumplimiento
+                            .Where(w => w.Observacion != null || w.Fotografias.Count > 0)
                             .Select(s => new
                             {
                                 Requisito = s.Caracteristica.Requisito.Descripcion,
                                 Norma = s.Caracteristica.Requisito.Titulo.Norma.Nombre,
                                 Observacion = s.Observacion,
-                                Fotos = s.Fotografias.Select(f => f.URL),
-                                Evaluacion = s.EvaluacionID,
-                                CaracteristicaId = s.CaracteristicaID
-                            })
-                            .OrderBy(o => o.Evaluacion)
-                            .ThenBy(o => o.Fotos.Count() > 0)
-
-                            ;
-        if (!noCumplimiento.Any())
+                                Fotos = s.Fotografias.Select(f => f.URL)
+                            }).ToList();
+        if (noCumplimiento.Count == 0)
             return;
+        texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que el {0} quede en norma, y pueda ser certificado:", Inspeccion.Aparato.Nombre));
+        texto.Style = "Parrafo";
+        title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES POR NORMA", point, subpoint));
+        title.Style = "Heading2";
+        
+        // Observaciones por Norma
+        
 
         var subsubpoint = 1;
         var numberfoto = 1;
         string pathImage = HttpContext.Current.Server.MapPath("~/fotos/");
-
-        var noCumplimientoSinFoto = noCumplimiento.Where(w => !w.Fotos.Any());
-        var noCumplimientoConFoto = noCumplimiento.Where(w => w.Fotos.Any());
-        var count = 0;
-        if (noCumplimientoSinFoto.Count() > 0)
+        foreach (var nc in noCumplimiento)
         {
-            foreach (var nc in noCumplimientoSinFoto)
+            var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
+            var complemento = string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma);
+            texto = section.AddParagraph(string.Format("{0}.{1}.{2}. {3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
+            texto.Style = "Parrafo";
+            
+            foreach (var foto in nc.Fotos)
             {
-                var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = nc.Evaluacion == 3
-                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
-                                    : string.Empty;
-                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
-                texto.Style = "Parrafo";
-                texto.Format.Alignment = ParagraphAlignment.Left;
-                if (Inspeccion.Fase == 2 && nc.Evaluacion == 3)
-                {
-                    var ok = Inspeccion.Cumplimiento
-                                .Where(w => w.CaracteristicaID == nc.CaracteristicaId)
-                                .FirstOrDefault();
-                    if (ok != null)
-                    {
-                        texto = section.AddParagraph(ok.Evaluacion.Descripcion + " en Fase " + ToRoman(2));
-                        texto.Style = "Parrafo";
-                        texto.Format.Font.Color = Colors.Blue;
-                    }
-                }
-                subsubpoint++;
-            }
-            section.AddPageBreak();
-        }
-        if (noCumplimientoConFoto.Count() > 0)
-        {
-            foreach (var nc in noCumplimientoConFoto)
-            {
-                if (count == 2)
-                {
-                    section.AddPageBreak();
-                    count = 0;
-                }
-                var puntoNC = nc.Requisito.Replace("\n", " ").TrimEnd();
-                var complemento = nc.Evaluacion == 3
-                                    ? string.Format("No cumple con el punto {0} de la norma {1}.", puntoNC, nc.Norma)
-                                    : string.Empty;
-                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
-                texto.Style = "Parrafo";
-                texto.Format.Alignment = ParagraphAlignment.Left;
-                if (Inspeccion.Fase == 2 && nc.Evaluacion == 3)
-                {
-                    var ok = Inspeccion.Cumplimiento
-                                .Where(w => w.CaracteristicaID == nc.CaracteristicaId)
-                                .FirstOrDefault();
-                    if (ok != null)
-                    {
-                        texto = section.AddParagraph(ok.Evaluacion.Descripcion + " en Fase " + ToRoman(2));
-                        texto.Style = "Parrafo";
-                        texto.Format.Font.Color = Colors.Blue;
-                    }
-                }
-                subsubpoint++;
-
-                foreach (var foto in nc.Fotos)
-                {
-                    var p = section.AddParagraph("");
-                    p.Format.Alignment = ParagraphAlignment.Center;
-                    Image image = section.LastParagraph.AddImage(pathImage + "/" + foto);
-                    image.Width = "8cm";
-                    var parr = section.AddParagraph("Imagen N° " + numberfoto);
-                    parr.Style = "Pie";
-                    numberfoto++;
-
-                }
-                count++;
-            }
-        }
-
-        var observacionesTecnicas = insp.ObservacionTecnica;
-        if (observacionesTecnicas.Count == 0)
-            return;
-
-        subpoint++;
-        title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES TÉCNICAS", point, subpoint));
-        title.Style = "Heading1";
-        title.AddBookmark("observacionestecnicas");
-        bookMarkList.Add(new BookMark { Text = string.Format("{0}.{1} OBSERVACIONES TÉCNICAS", point, subpoint), Mark = "observacionestecnicas", IsSub = true });
-
-        subsubpoint = 1;
-        count = 0;
-        var otSinFoto = observacionesTecnicas.Where(a => !a.FotografiaTecnica.Any());
-        var otConFoto = observacionesTecnicas.Where(a => a.FotografiaTecnica.Any());
-        if (otSinFoto.Count() > 0)
-        {
-            foreach (var o in otSinFoto)
-            {
-
-                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
-                texto.Style = "Parrafo";
-                subsubpoint++;
-
-                if(Inspeccion.Fase == 2)
-                {
-                    texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
-                    texto.Style = "Parrafo";
-                    texto.Format.Font.Color = Colors.AliceBlue;
-                }
-                
-
-            }
-            section.AddPageBreak();
-        }
-        if (otConFoto.Count() > 0)
-        {
-            foreach (var o in otConFoto)
-            {
-                if (count == 2)
-                {
-                    section.AddPageBreak();
-                    count = 0;
-                }
-                texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
-                texto.Style = "Parrafo";
-                subsubpoint++;
-                if(Inspeccion.Fase == 2)
-                {
-                    texto = section.AddParagraph(o.CorregidoEnFase2 == true ? "Corregido en Fase II" : "No corregido en Fase II");
-                    texto.Style = "Parrafo";
-                    texto.Format.Font.Color = Colors.Blue;
-                }
-                
-                var photo = o.FotografiaTecnica.Select(s => s.URL).FirstOrDefault();
                 var p = section.AddParagraph("");
                 p.Format.Alignment = ParagraphAlignment.Center;
-                Image image = section.LastParagraph.AddImage(pathImage + "/" + photo);
-
+                Image image = section.LastParagraph.AddImage(pathImage + "/" + foto);
                 image.Width = "8cm";
                 var parr = section.AddParagraph("Imagen N° " + numberfoto);
                 parr.Style = "Pie";
                 numberfoto++;
-                count++;
-
             }
-        }
-    }
+            subsubpoint++;
 
+        }
+
+        var observacionesTecnicas = Inspeccion.ObservacionTecnica.ToList();
+        if (observacionesTecnicas.Count == 0)
+            return;
+        subpoint++;
+        title = section.AddParagraph(string.Format("{0}.{1} OBSERVACIONES TÉCNICAS", point, subpoint));
+        title.Style = "Heading1";
+        
+        subsubpoint = 1;
+
+        foreach(var o in observacionesTecnicas)
+        {
+            texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3}", point, subpoint, subsubpoint, (o.Texto ?? string.Empty)));
+            texto.Style = "Parrafo";
+            var hasImage = o.FotografiaTecnica.FirstOrDefault();
+            if(hasImage != null)
+            {
+                var p = section.AddParagraph("");
+                p.Format.Alignment = ParagraphAlignment.Center;
+                Image image = section.LastParagraph.AddImage(pathImage + "/" + hasImage.URL);
+                image.Width = "8cm";
+                var parr = section.AddParagraph("Imagen N° " + numberfoto);
+                parr.Style = "Pie";
+                numberfoto++;
+            }
+            subsubpoint++;
+        }
+                                        
+    }
     public void Conclusiones()
     {
         Section section = document.AddSection();
-
+        
         point++;
         subpoint = 1;
         Paragraph title = section.AddParagraph(string.Format("{0}. CONCLUSIONES", point));
         title.Style = "Heading1";
         title.AddBookmark("conclusiones");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. CONCLUSIONES", point), Mark = "conclusiones", IsSub = false });
-        //Paragraph texto = section.AddParagraph(string.Format("Es necesario dar solución a las no conformidades y observaciones encontradas tras el proceso de inspección demoninado Fase {0}, separando las observaciones correspondientes a la edificación (cliente), así como las correspondientes a la empresa instaladora/mantenedora de ascensores,  con el objeto de incrementar la seguridad del mismo, proteger adecuadamente a los usuarios, a los técnicos de mantención, certificadores y/o personal propio del edificio en labores de rescate.", Inspeccion.Fase));
-        //texto.Style = "Parrafo";
-        //texto = section.AddParagraph(string.Format("Se debe trabajar en las mejoras de las no conformidades y observaciones normativas y técnicas descritas en los puntos 4 y 5 del presente informe, para que el {0} pueda calificar para la certificación sin observaciones y así, cumpla con la Ley 20.296.", Inspeccion.Aparato.Nombre));
-        //texto.Style = "Parrafo";
-        //texto = section.AddParagraph(string.Format("Es importante que tanto la administración del edificio, como la empresa instaladora/mantenedora, colaboran con la implementación de la carpeta cero, ya que existen en ella documentos que servirán para inscribir el {0} en la DOM (Dirección de Obras Municipales), según la indicación de la OGUC Artículo 5.9.5. Numeral 1, mediante una identificación con número único de registro de elevador.", Inspeccion.Aparato.Nombre));
-        //texto.Style = "Parrafo";
-        Paragraph texto;
-        var tipoCalificacion = Inspeccion.Calificacion; // 0: no califica; 1: califica con observaciones menores; 2: califica sin observaciones
-        var nAsociadas = Inspeccion.InspeccionNorma
-                                .Select(s => s.Norma.Nombre)
-                                .Distinct()
-                                .ToArray();
-        var normas = string.Empty;
-        for(var i = 0; i < nAsociadas.Length; i++)
-        {
-            var isLast = i == nAsociadas.Length - 1;
-            if(!isLast && nAsociadas.Length > 1)
-            {
-                normas += nAsociadas[i] + ", ";
-            }
-            else if(nAsociadas.Length > 1)
-            {
-                normas += "y " + nAsociadas[i];
-            }
-            else
-            {
-                normas += nAsociadas[i];
-            }
-        }
-        switch(tipoCalificacion) 
-        {
-            case 0: // NO CALIFICA
-                texto = section.AddParagraph(string.Format("Es necesario dar solución a las no conformidades y observaciones encontradas, separando las correspondientes a la edificación (cliente), así como las correspondientes a la empresa mantenedora de ascensores,  con el objeto de incrementar la seguridad del mismo, proteger adecuadamente a los usuarios, a los técnicos de mantención y/o personal propio de la empresa en labores de rescate de emergencia."));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("La OGUC (Ordenanza General de Urbanismo y Construcciones) en el Artículo 5.1.6, Numeral 13, indica que los elevadores deben disponer de una carpeta cero (o carpeta del elevador), este requisito es reafirmado por el punto Registros, de la norma {0} que indica la documentación necesaria que debe disponer dicha carpeta.", NormaPrincipalNombre));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Es importante que tanto la administración del Edificio {0}, como la empresa mantenedora, colaboren en la implementación de la carpeta cero,  ya que existen en ella documentos que servirán para inscribir el ascensor en la DOM (Dirección de Obras Municipales) según la indicación de la OGUC Artículo 5.9.5. Numeral 1, mediante una identificación con número único de registro del elevador.", Inspeccion.NombreEdificio));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, NO CALIFICA PARA LA CERTIFICACIÓN, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
-                texto.Style = "Parrafo";
-                
-                if(Inspeccion.Fase == 1)
-                {
-                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString(), Inspeccion.Aparato.Nombre));
-                    texto.Style = "Parrafo";
-                    texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
-                    texto.Style = "Parrafo";
-                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString()));
-                    texto.Style = "Parrafo";
-                }
-                else if (Inspeccion.CreaFaseSiguiente == true)
-                {
-                    texto = section.AddParagraph("Debido a que las no conformidades no fueron subsanadas tras la inspección del servicio de Fase II, el cliente debe solicitar el servicio de inspección de Fase III y/o iniciar el proceso de certificación nuevamente.");
-                    texto.Style = "Parrafo";
-                    texto = section.AddParagraph("Si elige el servicio de Fase III (cotización adicional), se otorga un plazo de 30 días para realizar las mejoras pendientes (observaciones menores que no afecten el normal funcionamiento del elevador). Si tras la inspección de Fase III no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.");
-                    texto.Style = "Parrafo";
-                }
-                break;
-            case 2: // CALIFICA CON OBSERVACIONES MENORES
-                texto = section.AddParagraph(string.Format("Es necesario dar solución a las no conformidades y observaciones encontradas, separando las correspondientes a la edificación (cliente), así como las correspondientes a la empresa mantenedora de ascensores,  con el objeto de incrementar la seguridad del mismo, proteger adecuadamente a los usuarios, a los técnicos de mantención y/o personal propio de la empresa en labores de rescate de emergencia."));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("La OGUC (Ordenanza General de Urbanismo y Construcciones) en el Artículo 5.1.6, Numeral 13, indica que los elevadores deben disponer de una carpeta cero (o carpeta del elevador), este requisito es reafirmado por el punto Registros, de la norma {0} que indica la documentación necesaria que debe disponer dicha carpeta.", NormaPrincipalNombre));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Es importante que tanto la administración del Edificio {0}, como la empresa mantenedora, colaboren en la implementación de la carpeta cero,  ya que existen en ella documentos que servirán para inscribir el ascensor en la DOM (Dirección de Obras Municipales) según la indicación de la OGUC Artículo 5.9.5. Numeral 1, mediante una identificación con número único de registro del elevador.", Inspeccion.NombreEdificio));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, CALIFICA PARA LA CERTIFICACIÓN CON OBSERVACIONES MENORES, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
-                texto.Style = "Parrafo";
-                if(Inspeccion.Fase == 1)
-                {
-                    texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y/o levantamiento de no conformidades del {1}.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString(), Inspeccion.Aparato.Nombre));
-                    texto.Style = "Parrafo";
-                    texto = section.AddParagraph("Cumplido este plazo, se programará en conjunto con el cliente, la Fase II del servicio,  para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación.");
-                    texto.Style = "Parrafo";
-
-                    texto = section.AddParagraph(string.Format("Si pasados los {0} días, no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.", Inspeccion.DiasPlazo == null ? "90" : Inspeccion.DiasPlazo.ToString()));
-                    texto.Style = "Parrafo";
-                }
-                else if (Inspeccion.CreaFaseSiguiente == true)
-                {
-                    texto = section.AddParagraph("Debido a que las no conformidades no fueron subsanadas tras la inspección del servicio de Fase II, el cliente debe solicitar el servicio de inspección de Fase III y/o iniciar el proceso de certificación nuevamente.");
-                    texto.Style = "Parrafo";
-                    texto = section.AddParagraph("Si elige el servicio de Fase III (cotización adicional), se otorga un plazo de 30 días para realizar las mejoras pendientes (observaciones menores que no afecten el normal funcionamiento del elevador). Si tras la inspección de Fase III no se han realizado las mejoras; entonces se deberá comenzar nuevamente con el proceso de certificación; materia de otra cotización.");
-                    texto.Style = "Parrafo";
-                }
-                break;
-            case 1: // CALIFICA SIN OBSERVACIONES
-                texto = section.AddParagraph(string.Format("En conformidad a las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas, se acredita mediante  inspección técnica y normativa, que la instalación del {0} cumple con los requisitos de instalación y de las seguridades en conformidad con las normas {1} aplicadas. Por lo tanto, se acredita que el elevador ha sido adecuadamente mantenido y que se encuentran en condiciones de seguir funcionando.", Inspeccion.Aparato.Nombre, normas));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El {0} N° {1}, CALIFICA PARA LA CERTIFICACIÓN, cumpliendo con la Ley 20.296.", Inspeccion.Aparato.Nombre, Inspeccion.Numero));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El certificado de inspección técnica y normativa denominado Certificado de Inspección {1}, deberá ser ingresado a la Dirección de Obras Municipales respectiva, por el propietario o por el administrador, según corresponda, antes del vencimiento del plazo que tiene la instalación para certificarse, y dentro de un plazo no superior a {0} días contados desde la fecha de emisión de la certificación.", "30", Inspeccion.TipoFuncionamientoAparato.Descripcion));
-                texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("Se procederá entonces, a emitir el certificado de inspección {1} y de experiencia del elevador, el que estará disponible para su despacho en un plazo máximo de {0} días hábiles.", "5", Inspeccion.TipoFuncionamientoAparato.Descripcion));
-                texto.Style = "Parrafo";      
-                break;
-        }
-
-        texto = section.AddParagraph("Atentamente,");
+        Paragraph texto = section.AddParagraph("Es necesario dar solución a las no conformidades y observaciones encontradas tras el proceso de inspección denominado Fase I, separando las correspondientes a la edificación (cliente), así como las correspondientes a la empresa mantenedora de ascensores,  con el objeto de incrementar la seguridad del mismo, proteger adecuadamente a los usuarios, a los técnicos de mantención, certificadores y/o personal propio del edificio en labores de rescate de emergencia.");
+        texto.Style = "Parrafo";
+        texto = section.AddParagraph("La OGUC (Ordenanza General de Urbanismo y Construcciones) en el Artículo 5.1.6, Numeral 13, indica que los elevadores deben disponer de una carpeta cero(o carpeta del elevador), este requisito es reafirmado por el punto N° 14: Registros, de la norma NCh3395 / 1 que indica la documentación necesaria que debe disponer dicha carpeta.");
+        texto.Style = "Parrafo";
+        texto = section.AddParagraph("Es importante que tanto la administración del Edificio Senior Suites, como la empresa mantenedora, colaboren en la implementación de la carpeta cero, ya que existen en ella documentos que servirán para inscribir el ascensor en la DOM(Dirección de Obras Municipales) según la indicación de la OGUC Artículo 5.9.5.Numeral 1, mediante una identificación con número único de registro del elevador.");
         texto.Style = "Parrafo";
 
-        texto = section.AddParagraph("DEPARTAMENTO DE INGENIERÍA.");
+        var noTieneSensor = Inspeccion.Cumplimiento
+                            .Any(a => a.CaracteristicaID == 190
+                                && a.EvaluacionID == 3);
+    
+        if(noTieneSensor)
+        {
+            texto = section.AddParagraph("Se debe incorporar un sensor sísmico calibrado para que, frente a un sismo excepcionalmente severo - mencionado en la normativa sísmica vigente -, genere una señal a un dispositivo de control que provoque la detención controlada del ascensor en la parada más próxima posible, abra las puertas, quede fuera de servicio y desconectado del suministro eléctrico de fuerza y alumbrado.Es una exigencia según el punto 4.3 de la norma NCh3362 de requisitos mínimos de diseño, instalación y operación para ascensores electromecánicos frente a sismos.");
+            texto.Style = "Parrafo";
+        }
+        var tipoCalificacion = Inspeccion.Calificacion; // 0: no califica; 1: califica con observaciones menores; 2: califica sin observaciones
+        var dictamen = tipoCalificacion == 0 ? "no califica para la certificación hasta la corrección de las no conformidades"
+            : tipoCalificacion == 2 ? "califica para la certificación con observaciones menores"
+            : tipoCalificacion == 1 ? "califica para la certificación sin observaciones"
+            : "";
+
+        if(tipoCalificacion == 0)
+        {
+            texto = section.AddParagraph(string.Format("Se debe trabajar en las mejoras de las no conformidades y observaciones normativas y técnicas descritas en los puntos 4 y 5 del presente informe, para que el Ascensor o Montacargas pueda calificar para la certificación sin observaciones y así, cumpla con la Ley 20.296.", Inspeccion.Aparato.Nombre));
+            texto.Style = "Parrafo";
+        }
+        texto = section.AddParagraph(string.Format("El {0} N° {1}, {2}", Inspeccion.Aparato.Nombre, Inspeccion.Numero, dictamen));
+        texto.Style = "Parrafo";
+        texto.Format.Font.Bold = true;
+        if (tipoCalificacion == 0)
+        {
+            texto = section.AddParagraph("Por lo tanto, se  deben corregir las no conformidades y observaciones señaladas en los puntos 4 y 5 del presente informe.");
+            texto.Style = "Parrafo";
+            texto = section.AddParagraph(string.Format("Se da un plazo de {0} días corridos a partir de la fecha del envío de este informe para realizar trabajos correspondientes a las mejoras y levantamiento de las no conformidades del equipo.", Inspeccion.DiasPlazo));
+            texto.Style = "Parrafo";
+            if(Inspeccion.Fase == 1)
+            {
+                texto = section.AddParagraph("Cumplido este plazo se programará, en conjunto con el cliente, la Fase II del servicio para revisar si lo solicitado/sugerido en este informe, fue realizado, y así verificar si el equipo califica o no para su certificación. De ser así, se emitirán los certificados de inspección y de experiencia tras la Fase II del proceso de certificación. De lo contrario, se deberá realizar nuevamente el proceso de certificación; materia de otro servicio.");
+                texto.Style = "Parrafo";
+            }
+        }
+        else
+        {
+            texto = section.AddParagraph(string.Format("Se procederá entonces, a emitir los certificados de inspección y de experiencia del elevador, el que estará disponible para su despacho en un plazo máximo de {0} días hábiles.", "5"));
+            texto.Style = "Parrafo";
+        }
+
+        texto = section.AddParagraph("Atentamente");
+        texto.Style = "Parrafo";
+
+        texto = section.AddParagraph("DEPARTAMENTO DE INGENIERÍA");
         texto.Style = "Parrafo";
         texto.Format.Font.Bold = true;
 
         string pathImage = HttpContext.Current.Server.MapPath("~/css/images/");
         Image image = section.AddImage(pathImage + "/logo.png");
-        image.Width = "5cm";
-        image.Top = 10;
+        image.Width = "6cm";
+        image.Top = 100;
 
     }
     public void DefineTableOfContents(Document document)
@@ -1353,13 +1159,12 @@ public class CreatePDFD114
     }
     public string Rendering()
     {
-        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true);
+        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(false, PdfFontEmbedding.Always);
         pdfRenderer.Document = document;
         pdfRenderer.RenderDocument();
         var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
         string filename = string.Format("Informe Inspeccion IT {0}_{1}.pdf", Inspeccion.IT.Replace("/", "-"), date);
-        string basePath = HttpContext.Current.Server.MapPath("~/pdf/");
-        string path = basePath + filename;
+        string path = HttpContext.Current.Server.MapPath("~/pdf/") + filename;
 
         using (var db = new CertelEntities())
         {
@@ -1379,9 +1184,6 @@ public class CreatePDFD114
             }
             else
             {
-                if (File.Exists(basePath + existsInforme.FileName))
-                    File.Delete(basePath + existsInforme.FileName);
-
                 existsInforme.FileName = filename;
                 existsInforme.FechaElaboracion = DateTime.Now;
                 existsInforme.EstadoID++;
@@ -1390,6 +1192,17 @@ public class CreatePDFD114
         }
         pdfRenderer.PdfDocument.Save(path);
         return filename;
+    }
+
+    public string ToRoman(int number)
+    {
+        switch (number)
+        {
+            case 1: return "I";
+            case 2: return "II";
+            case 3: return "III";
+            default: return number.ToString();
+        }
     }
     public struct BookMark
     {

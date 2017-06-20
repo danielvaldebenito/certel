@@ -8,6 +8,8 @@ using System.Linq.Dynamic;
 using System.Web.SessionState;
 using System.Collections.Generic;
 using System.IO;
+using System.Drawing;
+using System.Threading;
 public class Inspecciones : IHttpHandler, IRequiresSessionState
 {
 
@@ -124,10 +126,17 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             case "deleteInspeccion":
                 data = DeleteInspeccion(post);
                 break;
+            case "soloAprobar":
+                data = SoloAprobar(post, ds);
+                break;
+            case "copy":
+                data = Copy(post);
+                break;
         }
         if (data != null)
         {
             var json = serializer.Serialize(data);
+            
             context.Response.ContentType = "application/json";
             context.Response.Write(json);
             context.Response.Flush();
@@ -149,6 +158,237 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             return new { done = false, message = ex.ToString() };
         }
     }
+    private static object Copy(HttpContext post)
+    {
+        try
+        {
+            var array = post.Request["array"];
+            var toNew = bool.Parse(post.Request["toNew"]);
+            var from = int.Parse(post.Request["from"]);
+            var to = int.Parse(post.Request["to"]);
+            var deserializer = new JavaScriptSerializer();
+            var list = deserializer.Deserialize<List<int>>(array);
+            using (var db = new CertelEntities())
+            {
+                var inspToCopy = db.Inspeccion.Find(from);
+                if (inspToCopy == null) return new { done = false, message = "Error: Inspección no existe" };
+
+                Inspeccion inspToPaste;
+                if (toNew)
+                    inspToPaste = new Inspeccion();
+                else
+                    inspToPaste = db.Inspeccion.Find(to);
+                var service = inspToCopy.Servicio;
+                if (list.Contains(1)) // Datos Generales
+                {
+                    inspToPaste.AlturaPisos = inspToCopy.AlturaPisos;
+                    inspToPaste.AparatoID = inspToCopy.AparatoID;
+                    inspToPaste.Destinatario = inspToCopy.Destinatario;
+                    inspToPaste.DestinoProyectoID = inspToCopy.DestinoProyectoID;
+                    inspToPaste.Fase = inspToCopy.Fase;
+                    inspToPaste.FechaInspeccion = inspToCopy.FechaInspeccion;
+                    inspToPaste.FechaInstalacion = inspToCopy.FechaInstalacion;
+                    inspToPaste.Ingeniero = inspToCopy.Ingeniero;
+                    inspToPaste.NombreEdificio = inspToCopy.NombreEdificio;
+                    inspToPaste.NombreProyecto = inspToCopy.NombreProyecto;
+                    inspToPaste.PermisoEdificacion = inspToCopy.PermisoEdificacion;
+                    inspToPaste.RecepcionMunicipal = inspToCopy.RecepcionMunicipal;
+                    inspToPaste.ServicioID = inspToCopy.ServicioID;
+                    inspToPaste.TipoFuncionamientoID = inspToCopy.TipoFuncionamientoID;
+                    inspToPaste.Ubicacion = inspToCopy.Ubicacion;
+
+                    inspToPaste.EstadoID = 1;
+                    inspToPaste.FechaCreacion = DateTime.Now;
+                    inspToPaste.IT = toNew ? GetNewIt(service) : inspToPaste.IT;
+                }
+                if (toNew)
+                    db.Inspeccion.Add(inspToPaste);
+                db.SaveChanges();
+                var inspeccionId = inspToPaste.ID;
+                if (list.Contains(2) && inspToCopy.Fase == 1) // Datos específicos (solo para fase 1)
+                {
+                    // Remove exists
+                    var especificosOld = inspToPaste.ValoresEspecificos.ToList();
+                    foreach (var e in especificosOld)
+                    {
+                        db.ValoresEspecificos.Remove(e);
+                    }
+                    db.SaveChanges();
+                    // new
+                    var especificos = inspToCopy.ValoresEspecificos;
+
+                    foreach (var e in especificos)
+                    {
+                        var especifico = new ValoresEspecificos
+                        {
+                            EspecificoID = e.EspecificoID,
+                            InspeccionID = inspeccionId,
+                            Valor = e.Valor
+                        };
+                        db.ValoresEspecificos.Add(especifico);
+
+                    }
+                }
+                if (list.Contains(3)) // Normas y tipo de informe
+                {
+                    // Tipo informe
+                    inspToPaste.TipoInformeID = inspToCopy.TipoInformeID;
+                    // normas
+                    // remove exist
+                    var inspNormasOld = inspToPaste.InspeccionNorma.ToList();
+                    foreach (var ni in inspNormasOld)
+                    {
+                        db.InspeccionNorma.Remove(ni);
+                    }
+                    db.SaveChanges();
+                    // new
+                    var inspNormas = inspToCopy.InspeccionNorma;
+                    foreach (var ni in inspNormas)
+                    {
+                        var inspNorma = new InspeccionNorma
+                        {
+                            InspeccionID = inspeccionId,
+                            NormaID = ni.NormaID
+                        };
+                        db.InspeccionNorma.Add(inspNorma);
+                    }
+                }
+                if (list.Contains(4)) // Checklist y calificación
+                {
+                    // Calificacion
+                    inspToPaste.Calificacion = inspToCopy.Calificacion;
+
+                    // Cumplimiento
+                    // remove old
+                    var cumplimientoOld = inspToPaste.Cumplimiento.ToList();
+                    foreach (var cum in cumplimientoOld)
+                    {
+                        if (list.Contains(5) && inspToCopy.Fase == 1)
+                        {
+                            var photosOld = cum.Fotografias.ToList();
+                            foreach(var p in photosOld)
+                            {
+                                db.Fotografias.Remove(p);
+                            }
+                            db.SaveChanges();
+                        }
+                        db.Cumplimiento.Remove(cum);
+                    }
+                    db.SaveChanges();
+                    // new
+                    var cumplimiento = inspToCopy.Cumplimiento;
+                    foreach (var cum in cumplimiento)
+                    {
+                        var cumplim = new Cumplimiento
+                        {
+                            CaracteristicaID = cum.CaracteristicaID,
+                            EvaluacionID = cum.EvaluacionID,
+                            InspeccionID = inspeccionId,
+                            Fecha = DateTime.Now
+                        };
+                        db.Cumplimiento.Add(cumplim);
+                        db.SaveChanges();
+                        if (list.Contains(5) && inspToCopy.Fase == 1) // Observaciones y fotografias normativas
+                        {
+                            cumplim.Observacion = cum.Observacion;
+                            var photos = cum.Fotografias;
+                            foreach (var p in photos)
+                            {
+                                var photografy = new Fotografias
+                                {
+                                    CumplimientoID = cumplim.ID,
+                                    URL = p.URL
+                                };
+                                db.Fotografias.Add(photografy);
+
+                            }
+                        }
+                    }
+                }
+                if (list.Contains(6) && inspToCopy.Fase == 1)
+                {
+                    // remove
+                    var observacionesTecnicasOld = inspToPaste.ObservacionTecnica.ToList();
+                    foreach(var ot in observacionesTecnicasOld)
+                    {
+                        var photoTec = ot.FotografiaTecnica.ToList();
+                        foreach(var p in photoTec)
+                        {
+                            db.FotografiaTecnica.Remove(p);
+                        }
+                        db.SaveChanges();
+                        db.ObservacionTecnica.Remove(ot);
+                    }
+                    db.SaveChanges();
+                    var observacionesTecnicas = inspToCopy.ObservacionTecnica;
+                    foreach (var ot in observacionesTecnicas)
+                    {
+                        var obsTec = new ObservacionTecnica
+                        {
+                            CorregidoEnFase2 = false,
+                            InspeccionID = inspeccionId,
+                            Texto = ot.Texto
+                        };
+                        db.ObservacionTecnica.Add(obsTec);
+                        db.SaveChanges();
+                        var photos = ot.FotografiaTecnica;
+                        foreach (var p in photos)
+                        {
+                            var photoTec = new FotografiaTecnica
+                            {
+                                ObservacionTecnicaID = obsTec.ID,
+                                URL = p.URL
+                            };
+                            db.FotografiaTecnica.Add(photoTec);
+
+                        }
+                    }
+                }
+                db.SaveChanges();
+                return new { done = true, message = "La inspección ha sido copiada al IT " + inspToPaste.IT };
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Inspecciones/Copy", ex);
+            return new { done = false, message = ex.ToString() };
+        }
+    }
+    private static string GetNewIt(Servicio service)
+    {
+        var inspecciones = service.Inspeccion;
+        var digit = 0;
+        while(true) {
+            digit++;
+            var existsInspeccion = inspecciones.Any(a => int.Parse(a.IT.Split('/')[1]) == digit);
+            if (!existsInspeccion) break;
+        }
+        return string.Format("{0}/{1}", service.IT, digit);
+
+
+    }
+    private static object SoloAprobar(HttpContext post, DataUser ds)
+    {
+        try
+        {
+            var id = int.Parse(post.Request["id"]);
+            using (var db = new CertelEntities())
+            {
+                var inspeccion = db.Inspeccion.Find(id);
+                if (inspeccion == null) return new { done = false, message = "Error: Inspección no existe" };
+
+                inspeccion.Aprobador = ds.Usuario;
+                inspeccion.FechaAprobacion = DateTime.Now;
+                db.SaveChanges();
+                return new { done = true, message = "La inspección ha sido aprobada" };
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Error("Inspecciones/Aprobar", ex);
+            return new { done = false, message = ex.ToString() };
+        }
+    }
     private static object CorregirOtf2(HttpContext post)
     {
         try
@@ -160,7 +400,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var ot = db.ObservacionTecnica.Find(id);
                 ot.CorregidoEnFase2 = ok;
                 db.SaveChanges();
-                return new { done = true, message = "OK", ok= ok };
+                return new { done = true, message = "OK", ok = ok };
             }
         }
         catch (Exception ex)
@@ -197,28 +437,31 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             using (var db = new CertelEntities())
             {
                 var inspeccion = db.Inspeccion.Find(inspeccionId);
-                if(inspeccion == null)
+                if (inspeccion == null)
                     return new { done = false, message = "Esta inspección ya no existe" };
                 var path = HttpContext.Current.Server.MapPath("~/fotos/");
 
-                if(inspeccion.Inspeccion1.Any())
+                if (inspeccion.Inspeccion1.Any())
                     return new { done = false, message = "Esta inspección tiene una inspección en Fase 2, cuando finalice la fase 2, puede eliminarla." };
                 var cumplimientos = inspeccion.Cumplimiento.ToList();
-                cumplimientos.ForEach(f => {
+                cumplimientos.ForEach(f =>
+                {
                     var fotos = f.Fotografias.ToList();
                     fotos.ForEach(ff =>
                     {
-                        if(File.Exists(path + ff.URL))
+                        if (File.Exists(path + ff.URL))
                             File.Delete(path + ff.URL);
                         db.Fotografias.Remove(ff);
                     });
                     db.Cumplimiento.Remove(f);
                 });
                 var obsTecns = inspeccion.ObservacionTecnica.ToList();
-                obsTecns.ForEach(f => {
+                obsTecns.ForEach(f =>
+                {
                     var fotos = f.FotografiaTecnica.ToList();
-                    fotos.ForEach(ff => {
-                        if(File.Exists(path + ff.URL))
+                    fotos.ForEach(ff =>
+                    {
+                        if (File.Exists(path + ff.URL))
                             File.Delete(path + ff.URL);
                         db.FotografiaTecnica.Remove(ff);
                     });
@@ -255,7 +498,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                     .Find(inspeccionId);
                 inspeccion.TipoInformeID = informeId;
                 var if2 = inspeccion.Inspeccion1;
-                foreach(var i in if2)
+                foreach (var i in if2)
                 {
                     i.TipoInformeID = informeId;
                 }
@@ -284,12 +527,22 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var fotos = db.FotografiaTecnica
                                 .Where(w => w.ObservacionTecnicaID == id)
                                 .ToList();
-                foreach(var f in fotos)
+                foreach (var f in fotos)
                 {
+                    var url = f.URL;
+                    var others = db.FotografiaTecnica
+                                    .Where(w => w.URL == url)
+                                    .Count();
                     var fileName = HttpContext.Current.Server.MapPath("~/fotos/") + f.URL;
-                    File.Delete(fileName);
+
                     db.FotografiaTecnica.Remove(f);
                     db.SaveChanges();
+
+                    if(others <= 1)
+                    {
+                        if(File.Exists(fileName))
+                            File.Delete(fileName);
+                    }
                 }
 
                 db.ObservacionTecnica.Remove(observacion);
@@ -403,9 +656,9 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 bool crea;
                 if (creafase2)
                 {
-                    if(inspeccion.Fase == 1)
+                    if (inspeccion.Fase == 1)
                     {
-                        if(!inspeccion.Inspeccion1.Any())
+                        if (!inspeccion.Inspeccion1.Any())
                         {
                             var fase2 = new Inspeccion
                             {
@@ -433,7 +686,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
 
                             };
 
-                            if(inspeccion.FechaEntrega.HasValue)
+                            if (inspeccion.FechaEntrega.HasValue)
                                 fase2.FechaInspeccion = inspeccion.FechaEntrega.Value.AddDays(dias);
 
                             db.Inspeccion.Add(fase2);
@@ -441,7 +694,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
 
 
                             var inspeccionNormaOriginal = inspeccion.InspeccionNorma.ToList();
-                            foreach(var i in inspeccionNormaOriginal)
+                            foreach (var i in inspeccionNormaOriginal)
                             {
                                 var inspeccionNorma = new InspeccionNorma
                                 {
@@ -451,31 +704,23 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                 db.InspeccionNorma.Add(inspeccionNorma);
                                 db.SaveChanges();
                             }
-                            var especificos = inspeccion.ValoresEspecificos.ToList();
-                            foreach(var i in especificos)
-                            {
-                                var valoresEspecificos = new ValoresEspecificos
-                                {
-                                    EspecificoID = i.EspecificoID,
-                                    InspeccionID = fase2.ID,
-                                    Valor = i.Valor
-                                };
-                                db.ValoresEspecificos.Add(valoresEspecificos);
-                                db.SaveChanges();
-                            }
+
                             mensaje = "La calificación fue guardada. La fase 2 ha sido creada";
 
                         }
-                        else {
+                        else
+                        {
                             mensaje = "La calificación fue guardada, pero no se creó una Fase 2, porque ya existe una.";
                         }
                     }
-                    else {
+                    else
+                    {
                         mensaje = "La calificación ha sido guardada. Se especificará en el informe, que se creará una fase 3, materia de otra cotización";
                     }
                     crea = true;
                 }
-                else {
+                else
+                {
                     crea = false;
                 }
                 inspeccion.CreaFaseSiguiente = crea;
@@ -496,19 +741,27 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
         try
         {
             var id = int.Parse(post.Request["id"]);
-
             using (var db = new CertelEntities())
             {
                 var photo = db.Fotografias
                                 .Where(w => w.ID == id)
                                 .FirstOrDefault();
+
                 if (photo == null)
                 {
                     return new { done = false, message = "Fotografía ya no existe" };
                 }
+                var url = photo.URL;
+                var moreThanOne = db.Fotografias
+                                    .Where(w => w.URL == url)
+                                    .Count();
+                if(moreThanOne <= 1)
+                {
+                    var fileName = HttpContext.Current.Server.MapPath("~/fotos/") + photo.URL;
+                    if(File.Exists(fileName))
+                        File.Delete(fileName);
+                }
 
-                var fileName = HttpContext.Current.Server.MapPath("~/fotos/") + photo.URL;
-                File.Delete(fileName);
                 db.Fotografias.Remove(photo);
                 db.SaveChanges();
 
@@ -573,7 +826,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             var inspeccion = int.Parse(post.Request["inspeccion"]);
             var caracteristica = int.Parse(post.Request["caracteristica"]);
             string str_image = string.Empty;
-
+            var basePath = HttpContext.Current.Server.MapPath("~/fotos/");
             using (var db = new CertelEntities())
             {
                 var cumplimiento = db.Cumplimiento
@@ -581,38 +834,37 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                     .Where(w => w.InspeccionID == inspeccion)
                                     .FirstOrDefault();
                 if (cumplimiento == null)
-                {
                     return new { done = false, message = "Primero ingrese una evaluación para esta característica" };
-                }
-                else
+
+                HttpPostedFile file = post.Request.Files[0];
+                string fileName = file.FileName;
+                string fileExtension = file.ContentType;
+                if (string.IsNullOrEmpty(fileName)) return new { done = false, message = "Error: No se ha recibido correctamente el archivo" };
+
+                var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
+                fileExtension = Path.GetExtension(fileName);
+                str_image = inspeccion + "_" + caracteristica + "_" + date + fileExtension;
+                string pathToTempSave = basePath + "Temp_" + str_image;
+                file.SaveAs(pathToTempSave);
+                var destinyPath = basePath + str_image;
+                // Save to DB
+                var photo = new Fotografias
                 {
-                    HttpPostedFile file = post.Request.Files[0];
-                    string fileName = file.FileName;
-                    string fileExtension = file.ContentType;
+                    CumplimientoID = cumplimiento.ID,
+                    URL = str_image,
+                };
+                db.Fotografias.Add(photo);
+                db.SaveChanges();
 
-
-                    if (!string.IsNullOrEmpty(fileName))
-                    {
-                        var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
-                        fileExtension = Path.GetExtension(fileName);
-                        str_image = inspeccion + "_" + caracteristica + "_" + date + fileExtension;
-                        string pathToSave = HttpContext.Current.Server.MapPath("~/fotos/") + str_image;
-                        file.SaveAs(pathToSave);
-
-                    }
-
-                    // Save To BBDD
-                    var photo = new Fotografias
-                    {
-                        CumplimientoID = cumplimiento.ID,
-                        URL = str_image,
-
-                    };
-                    db.Fotografias.Add(photo);
-                    db.SaveChanges();
+                // Resize
+                if (ResizeImage(pathToTempSave, destinyPath))
+                {
                     return new { done = true, message = "Fotografía agregada correctamente" };
                 }
-
+                else {
+                    file.SaveAs(basePath + str_image);
+                    return new { done = true, message = "Fotografía agregada, pero no fue posible reducir la imagen" };
+                }
             }
         }
         catch (Exception ex)
@@ -620,6 +872,30 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             log.Error("Inspecciones/UploadImage", ex);
             return new { done = false, message = ex.ToString() };
         }
+    }
+    public static bool ResizeImage(string temppath, string destinyPath)
+    {
+        try
+        {
+            var maxWidth = 500;
+            using (var i = Image.FromFile(temppath))
+            {
+                var width = i.Width;
+                var height = i.Height;
+                var maxHeight = (int)(height * maxWidth / width);
+                Image resized = new Bitmap(i, new Size(maxWidth, maxHeight));
+                resized.Save(destinyPath);
+            }
+            Thread.Sleep(100);
+            if (File.Exists(temppath))
+                File.Delete(temppath);
+            return true;
+        }
+        catch(Exception ex)
+        {
+            return false;
+        }
+
     }
     private static object UploadImageTecnica(HttpContext post)
     {
@@ -629,22 +905,23 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
             var obs = post.Request["obs"];
             var inspeccionId = int.Parse(post.Request["inspeccion"]);
             string str_image = string.Empty;
-
+            var basePath = HttpContext.Current.Server.MapPath("~/fotos/");
             using (var db = new CertelEntities())
             {
 
                 HttpPostedFile file = post.Request.Files[0];
                 string fileName = file.FileName;
                 string fileExtension = file.ContentType;
-                if (!string.IsNullOrEmpty(fileName))
-                {
-                    var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
-                    fileExtension = Path.GetExtension(fileName);
-                    str_image = inspeccionId + "_OT_" + date + fileExtension;
-                    string pathToSave = HttpContext.Current.Server.MapPath("~/fotos/") + str_image;
-                    file.SaveAs(pathToSave);
+                if (string.IsNullOrEmpty(fileName)) return new { done = false, message = "Error: No se ha recibido correctamente el archivo" };
 
-                }
+                var date = DateTime.Now.ToString("ddMMyyyyHHmmss");
+                fileExtension = Path.GetExtension(fileName);
+                str_image = inspeccionId + "_OT_" + date + fileExtension;
+                string pathToTempSave = basePath  + "Temp_" + str_image;
+                file.SaveAs(pathToTempSave);
+                var destinyPath = basePath + str_image;
+
+
                 var observacion = new ObservacionTecnica
                 {
                     InspeccionID = inspeccionId,
@@ -661,7 +938,14 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 };
                 db.FotografiaTecnica.Add(photo);
                 db.SaveChanges();
-                return new { done = true, message = "Fotografía agregada correctamente" };
+                if(ResizeImage(pathToTempSave, destinyPath))
+                    return new { done = true, message = "Observación y Fotografía agregadas correctamente" };
+                else
+                {
+                    file.SaveAs(basePath + str_image);
+                    return new { done = true, message = "Observación y agregada correctamente. La fotografía también se agregó pero no se pudo reducir el tamaño." };
+                }
+
             }
 
 
@@ -771,7 +1055,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 if (check)
                 {
                     var any = db.InspeccionNorma.Any(a => a.InspeccionID == inspeccionId && a.NormaID == id);
-                    if(!any)
+                    if (!any)
                     {
                         var ni = new InspeccionNorma
                         {
@@ -779,7 +1063,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                             NormaID = id
                         };
                         db.InspeccionNorma.Add(ni);
-                        foreach(var if2 in inspeccionesEnFase2)
+                        foreach (var if2 in inspeccionesEnFase2)
                         {
                             var any1 = db.InspeccionNorma.Any(a => a.InspeccionID == if2.ID && a.NormaID == id);
                             if (!any1)
@@ -826,12 +1110,12 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                             done = false,
                             message = "Ha ocurrido un error"
                         };
-                    foreach(var f in ni)
+                    foreach (var f in ni)
                     {
                         db.InspeccionNorma.Remove(f);
                     }
 
-                    foreach(var if2 in inspeccionesEnFase2)
+                    foreach (var if2 in inspeccionesEnFase2)
                     {
                         var normainsp = db.InspeccionNorma
                                         .Where(w => w.NormaID == id)
@@ -911,11 +1195,11 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                             .Where(w => w.Norma.Principal == true)
                                             ;
 
-                foreach(var n in normasReguladoras)
+                foreach (var n in normasReguladoras)
                 {
                     normasList.Add(n.Norma);
                     var asociadas = n.Norma.NormasAsociadas;
-                    foreach(var a in asociadas)
+                    foreach (var a in asociadas)
                     {
                         normasList.Add(a.Norma1);
                     }
@@ -992,11 +1276,11 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var noConformidadesAnterioresID = noConformidadesAnteriores.Select(s => s.ID);
                 List<Norma> normas = new List<Norma>();
                 var normas1 = inspeccion.InspeccionNorma.Select(s => s.Norma);
-                foreach(var n in normas1)
+                foreach (var n in normas1)
                 {
                     normas.Add(n);
                     var asociadas = n.NormasAsociadas.Select(s => s.Norma1);
-                    foreach(var a in asociadas)
+                    foreach (var a in asociadas)
                     {
                         normas.Add(a);
                     }
@@ -1066,9 +1350,9 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                 var inspeccionesList = new List<Inspeccion>();
                 var inspeccion = db.Inspeccion.Find(inspeccionId);
 
-                if(all)
+                if (all)
                 {
-                    inspeccionesList =  db.Inspeccion
+                    inspeccionesList = db.Inspeccion
                          .Where(w => w.ServicioID == inspeccion.ServicioID)
                          .ToList();
                 }
@@ -1159,7 +1443,10 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                     Ingeniero = inspeccion.Ingeniero,
                     Nombre = inspeccion.NombreProyecto,
                     Edificio = inspeccion.NombreEdificio,
-                    Numero = inspeccion.Numero
+                    Numero = inspeccion.Numero,
+                    Fec = inspeccion.FechaEmisionCertificado.HasValue ? inspeccion.FechaEmisionCertificado.Value.ToString("dd-MM-yyyy") : string.Empty,
+                    Fvc = inspeccion.FechaVencimientoCertificado.HasValue ? inspeccion.FechaVencimientoCertificado.Value.ToString("dd-MM-yyyy") : string.Empty
+
                 };
                 return new
                 {
@@ -1227,11 +1514,12 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                 .Where(w => isRevisador ? true : w.Ingeniero == ds.Usuario)
                                 .Where(w => w.Servicio.IT.Contains(it))
                                 .Where(w => desde == null
-                                    ? w.FechaCreacion >= defaultDate
+                                    ? true
                                     : w.FechaCreacion >= desde.Value)
                                 .Where(w => hasta == null
-                                    ? w.FechaCreacion <= DateTime.Now
-                                    : w.FechaCreacion <= hasta.Value);
+                                    ? true
+                                    : w.FechaCreacion <= hasta.Value)
+                                    .ToList();
                 int pageSize = rows;
                 int totalRecords = list.Count();
                 int totalPages = (int)Math.Ceiling((float)totalRecords / (float)pageSize);
@@ -1244,6 +1532,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                     .Skip((page - 1) * pageSize)
                     .Take(pageSize);
                 var date = new DateTime();
+                int revisar;
                 var grid = new
                 {
                     page = page,
@@ -1256,19 +1545,20 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
                                Id = x.ID,
                                ItServicio = x.Servicio.IT,
                                It = x.IT,
-                               Aparato = x.Aparato.Nombre,
-                               Funcionamiento = x.TipoFuncionamientoAparato.Descripcion,
+                               Aparato = x.AparatoID == null ? string.Empty : x.Aparato.Nombre,
+                               Funcionamiento = x.TipoFuncionamientoID == null ? string.Empty : x.TipoFuncionamientoAparato.Descripcion,
                                FechaCreacion = x.FechaCreacion.ToString("dd-MM-yyyy"),
-                               FechaInspeccion = x.FechaInspeccion.Value.ToString("dd-MM-yyyy"),
+                               FechaInspeccion = x.FechaInspeccion.HasValue ? x.FechaInspeccion.Value.ToString("dd-MM-yyyy") : string.Empty,
                                FechaEntrega = x.FechaEntrega.HasValue ? x.FechaEntrega.Value.ToString("dd-MM-yyyy") : string.Empty,
                                Fase = x.Fase,
-                               HasInforme = x.Informe.Any(),
+                               Norma = x.InspeccionNorma.Select(s => s.Norma.Nombre).FirstOrDefault(),
+                               //HasInforme = x.Informe.Any(),
                                Estado = x.EstadoInspeccion.Descripcion,
                                Ingeniero = x.Ingeniero == null ? string.Empty : x.Usuario.Nombre + " " + x.Usuario.Apellido,
                                EstadoId = x.EstadoID,
-                               Revisar = !isRevisador ? 0 : x.FechaRevision.HasValue ? 1 : 2,
+                               Revisar = revisar = !isRevisador ? 0 : x.FechaRevision.HasValue ? 1 : 2,
                                Aprobar = !isAprobador || !x.FechaRevision.HasValue ? 0 : x.FechaAprobacion.HasValue ? 1 : 2,
-                               Revisar1 = !isRevisador ? 0 : x.FechaRevision.HasValue ? 1 : 2,
+                               Revisar1 = revisar,
                                Aprobado = x.FechaAprobacion.HasValue,
                                Today = date = DateTime.Today,
                                AtrasadaInspeccion = date > x.FechaInspeccion && !x.Cumplimiento.Any(),
