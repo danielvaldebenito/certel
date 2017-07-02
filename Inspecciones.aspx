@@ -610,7 +610,7 @@
 <script src="bower_components/alertify.js/alertify.min.js"></script>
 <script src="bower_components/bootstrap-switch.js"></script>
 <script src="bower_components/magnific-popup.js"></script>
-<script src="js/menu.js"></script>
+<script src="js/menu.js?20062017"></script>
 <script src="js/certel.js"></script>
-<script src="js/elementos/inspecciones.js?16032017"></script>
+<script src="js/elementos/inspecciones.js?20062017"></script>
 </html>

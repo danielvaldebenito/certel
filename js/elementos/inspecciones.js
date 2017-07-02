@@ -38,7 +38,7 @@ $(document).ready(function () {
     $('#f_desde, #f_hasta, #ai-fecha-inspeccion').datepicker();
     $('#ei-fecha-inspeccion').datepicker();
     var currrentYear = new Date().getFullYear()
-    $('#ai-fecha-instalacion, #ei-fecha-instalacion, #ei-fec, #ai-fec, #ei-fvc, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:" + currrentYear });
+    $('#ai-fecha-instalacion, #ei-fecha-instalacion, #ei-fec, #ai-fec, #ei-fvc, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:2030" });
     $('#fecha_entrega').datepicker({ formatDate: 'dd-mm-yy', minDate: 0 });
     // comboboxs
     combobox($('#ai-aparato'), { 1: 'aparatos' }, 'Seleccione...');

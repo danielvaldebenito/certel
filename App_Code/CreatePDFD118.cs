@@ -613,17 +613,7 @@ public class CreatePDFD118
         row2.TopPadding = 2;
         row2.BottomPadding = 2;
 
-        row2 = table2.AddRow();
-        row2.Cells[0].AddParagraph("Fecha de Emisión del Certificado de Inspección de Certificación");
-        row2.Cells[1].AddParagraph(insp.FechaEmisionCertificado.HasValue ? insp.FechaEmisionCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
-
-        row2 = table2.AddRow();
-        row2.Cells[0].AddParagraph("Fecha de Vencimiento del Certificado de Inspección de Certificación");
-        row2.Cells[1].AddParagraph(insp.FechaVencimientoCertificado.HasValue ? insp.FechaVencimientoCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
-        row2.TopPadding = 2;
-        row2.BottomPadding = 2;
+        
         // Especificos Tabla 2
         var especificosT2 = insp.ValoresEspecificos.Where(w => w.Especificos.NroTable == 2).OrderBy(o => o.EspecificoID);
         foreach (var e in especificosT2)
@@ -635,7 +625,20 @@ public class CreatePDFD118
             row2.BottomPadding = 2;
         }
 
+        row2 = table2.AddRow();
+        row2.Cells[0].AddParagraph("Fecha de Emisión del Certificado de Inspección de Certificación");
+        row2.Cells[1].AddParagraph(insp.FechaEmisionCertificado.HasValue ? insp.FechaEmisionCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
+
+        row2 = table2.AddRow();
+        row2.Cells[0].AddParagraph("Fecha de Vencimiento del Certificado de Inspección de Certificación");
+        row2.Cells[1].AddParagraph(insp.FechaVencimientoCertificado.HasValue ? insp.FechaVencimientoCertificado.Value.ToString("dd-MM-yyyy") : string.Empty);
+        row2.TopPadding = 2;
+        row2.BottomPadding = 2;
+
         // Especificos
+        section.AddPageBreak();
         section.AddParagraph();
         tableTitle = section.AddParagraph("TABLA N°3");
         tableTitle.Style = "Heading2";

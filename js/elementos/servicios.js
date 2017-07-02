@@ -5,7 +5,7 @@ $(document).ready(function () {
     // datepickers
     $('#f_desde, #f_hasta, #ai-fecha-inspeccion').datepicker();
     var currrentYear = new Date().getFullYear()
-    $('#ai-fecha-instalacion, #ai-fec, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:" + currrentYear });
+    $('#ai-fecha-instalacion, #ai-fec, #ai-fvc').datepicker({ changeYear: true, yearRange: "1935:2030" });
     // comboboxs
     combobox($('#add-cliente'), { 1: 'clientes' }, 'Seleccione...');
     combobox($('#ai-destino'), { 1: 'destinoProyecto' });
