@@ -1012,10 +1012,10 @@ public class CreatePDFD115
         Section section = document.AddSection();
         point++;
         subpoint = 1;
-        Paragraph title = section.AddParagraph(string.Format("{0}. OBSERVACIONES NORMATIVAS Y TÉCNICAS", point));
+        Paragraph title = section.AddParagraph(string.Format("{0}. RESUMEN DE OBSERVACIONES NORMATIVAS Y TÉCNICAS", point));
         title.Style = "Heading1";
         title.AddBookmark("observaciones");
-        bookMarkList.Add(new BookMark { Text = string.Format("{0}. OBSERVACIONES NORMATIVAS Y TÉCNICAS", point), Mark = "observaciones", IsSub = false });
+        bookMarkList.Add(new BookMark { Text = string.Format("{0}. RESUMEN DE OBSERVACIONES NORMATIVAS Y TÉCNICAS", point), Mark = "observaciones", IsSub = false });
 
         Paragraph texto = section.AddParagraph(string.Format("Las siguientes observaciones deben ser corregidas para que el elevador quede en norma, y pueda ser certificado:", Inspeccion.Aparato.Nombre));
         texto.Style = "Parrafo";
