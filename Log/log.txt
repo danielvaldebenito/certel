@@ -922,3 +922,13 @@ Parameter name: emSize
    en System.IO.File.Delete(String path)
    en SetInforme.RemovePdfs() en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 230
    en SetInforme.CreatePdf(HttpContext post) en c:\Users\Daniel\OneDrive\Pega\Certel\Certel\handlers\SetInforme.ashx:línea 205
+
+ ERROR 
+ 06-Sep-2017 09:58:45 PM 
+ ERROR AL CARGAR GRILLA DE Inspecciones 
+ No property or field 'ItServicio' exists in type 'Inspeccion' (at index 0)
+
+ ERROR 
+ 06-Sep-2017 09:59:58 PM 
+ ERROR AL CARGAR GRILLA DE Inspecciones 
+ No property or field 'ItServicio' exists in type 'Inspeccion' (at index 0)

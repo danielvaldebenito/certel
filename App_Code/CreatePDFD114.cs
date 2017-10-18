@@ -268,7 +268,7 @@ public class CreatePDFD114
         image.Width = 60;
         row.Format.Alignment = ParagraphAlignment.Center;
         row.VerticalAlignment = VerticalAlignment.Center;
-        row.Cells[1].AddParagraph("INSPECCIÓN NORMA NCh3395/1 \n ANEXO A\n Lista de verificación técnica para la inspección de ascensores y montacargas eléctricos existentes.");
+        row.Cells[1].AddParagraph("INSPECCIÓN NORMA NCh3395/1:2016 \n ANEXO A\n Lista de verificación técnica para la inspección de ascensores y montacargas eléctricos existentes.");
         row.Cells[1].MergeRight = 2;
         row.Cells[4].Format.Alignment = ParagraphAlignment.Center;
         var p = row.Cells[4].AddParagraph();
@@ -415,10 +415,10 @@ public class CreatePDFD114
             IsSub = false
         });
         subpoint = 1;
-        Paragraph parrafo1 = section.AddParagraph(string.Format("{0} \tEl presente  servicio tiene por objeto, dar a conocer las observaciones necesarias a resolver bajo los criterios de inspección de la norma NCh-ISO 17020:2012 y NCh 3395/1:2016, para la auditoría del elevador del edificio de la referencia, y establecer los requisitos de seguridad que debe cumplir para proteger a los usuarios y/o a los objetos contra los diferentes riesgos de accidentes asociados a la instalación y al funcionamiento del mismo. ", point + "." + subpoint + "."));
+        Paragraph parrafo1 = section.AddParagraph(string.Format("{0} \tEl presente  servicio tiene por objeto, dar a conocer las observaciones necesarias a resolver bajo los criterios de inspección de la norma NCh-ISO 17020:2012 y NCh3395/1:2016, para la auditoría del elevador del edificio de la referencia, y establecer los requisitos de seguridad que debe cumplir para proteger a los usuarios y/o a los objetos contra los diferentes riesgos de accidentes asociados a la instalación y al funcionamiento del mismo. ", point + "." + subpoint + "."));
         parrafo1.Style = "Parrafo";
         subpoint++;
-        parrafo1 = section.AddParagraph(string.Format("{0} \tEl objetivo es verificar el estado actual del elevador, respecto de la norma NCh3395:2016, y ver si cumple con los requisitos de construcción e instalación de las mismas; comprobar que se mantiene en condiciones de funcionamiento seguro, tanto para los usuarios del elevador, como para el personal que realiza el servicio de mantenimiento del {1}", point + "." + subpoint + ".", Inspeccion.Aparato.Nombre));
+        parrafo1 = section.AddParagraph(string.Format("{0} \tEl objetivo es verificar el estado actual del elevador, respecto de la norma NCh3395/1:2016, y ver si cumple con los requisitos de construcción e instalación de las mismas; comprobar que se mantiene en condiciones de funcionamiento seguro, tanto para los usuarios del elevador, como para el personal que realiza el servicio de mantenimiento del {1}", point + "." + subpoint + ".", Inspeccion.Aparato.Nombre));
         subpoint++;
         parrafo1.Style = "Parrafo";
         
@@ -463,13 +463,13 @@ public class CreatePDFD114
         texto = section.AddParagraph(string.Format("{0}.{1}	DI - 117. \"Procedimiento de Inspección de Elevadores\".", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:Nch Elec. 4/2003 \"Instalaciones de Consumo de baja tensión\".", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:NCh Elec. 4/2003 \"Instalaciones de Consumo de baja tensión\".", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:Nch 3362:2014, \"Requisitos mínimos de diseño, instalación y operación para ascensores electromecánicos frente a sismos\".", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	Instituto Nacional de Normalización, INN:NCh3362/1:2014, \"Requisitos mínimos de diseño, instalación y operación para ascensores electromecánicos frente a sismos\".", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
-        texto = section.AddParagraph(string.Format("{0}.{1}	Nch ISO 17020:2012 - Evaluación de la conformidad - Requisitos para el funcionamiento de los diversos tipos de organismo que realizan inspección.", point, subpoint));
+        texto = section.AddParagraph(string.Format("{0}.{1}	NCh ISO 17020:2012 - Evaluación de la conformidad - Requisitos para el funcionamiento de los diversos tipos de organismo que realizan inspección.", point, subpoint));
         texto.Style = "Parrafo";
         subpoint++;
         texto = section.AddParagraph(string.Format("{0}.{1} D.S. N° 47 Ordenanza general de urbanismo y construcciones (actualizada al 21 de marzo de 2016) - Incorpora modificaciones D.S. N° 50 D.O. 04-03-2016-D.S.N°37 - D.O. 21-03-2016).", point, subpoint));
@@ -762,7 +762,7 @@ public class CreatePDFD114
         title.Style = "Heading1";
         title.AddBookmark("resultados");
         bookMarkList.Add(new BookMark { Text = string.Format("{0}. RESULTADOS DE LA INSPECCIÓN DEL {1}", point, Inspeccion.Aparato.Nombre.ToUpper()), Mark = "resultados", IsSub = false });
-        Paragraph texto = section.AddParagraph(string.Format("A continuación se verifican las áreas de inspección y se detallan las no conformidades encontradas tras la Fase {0} del proceso de certificación en el equipo referente a la norma NCh3395, respecto a la lista de verificación técnica de la misma, las que deben ser tratadas por seguridad y para poder optar a la certificación del {1}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre));
+        Paragraph texto = section.AddParagraph(string.Format("A continuación se verifican las áreas de inspección y se detallan las no conformidades encontradas tras la Fase {0} del proceso de certificación en el equipo referente a la norma NCh3395/1:2016, respecto a la lista de verificación técnica de la misma, las que deben ser tratadas por seguridad y para poder optar a la certificación del {1}.", ToRoman(Inspeccion.Fase), Inspeccion.Aparato.Nombre));
         texto.Style = "Parrafo";
         texto = section.AddParagraph("GLOSARIO");
         texto.Style = "Parrafo";
@@ -1081,7 +1081,7 @@ public class CreatePDFD114
                                     : string.Empty;
                 texto = section.AddParagraph(string.Format("{0}.{1}.{2}. \t{3} {4}", point, subpoint, subsubpoint, (nc.Observacion ?? string.Empty), complemento));
                 texto.Style = "Parrafo";
-                texto.Format.Alignment = ParagraphAlignment.Left;
+                //texto.Format.Alignment = ParagraphAlignment.Left;
                 if (Inspeccion.Fase == 2 && nc.Evaluacion == 3)
                 {
                     var ok = Inspeccion.Cumplimiento
@@ -1259,7 +1259,7 @@ public class CreatePDFD114
                 texto.Style = "Parrafo";
                 texto = section.AddParagraph(string.Format("Es importante que tanto la administración del Edificio {0}, como la empresa mantenedora, colaboren en la implementación de la carpeta cero,  ya que existen en ella documentos que servirán para inscribir el ascensor en la DOM (Dirección de Obras Municipales) según la indicación de la OGUC Artículo 5.9.5. Numeral 1, mediante una identificación con número único de registro del elevador.", Inspeccion.NombreEdificio));
                 texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, NO CALIFICA PARA LA CERTIFICACIÓN, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
+                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, NO CALIFICA PARA LA CERTIFICACIÓN POR DEFECTOS GRAVES, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
                 texto.Style = "Parrafo";
                 
                 if(Inspeccion.Fase == 1)
@@ -1286,7 +1286,7 @@ public class CreatePDFD114
                 texto.Style = "Parrafo";
                 texto = section.AddParagraph(string.Format("Es importante que tanto la administración del Edificio {0}, como la empresa mantenedora, colaboren en la implementación de la carpeta cero,  ya que existen en ella documentos que servirán para inscribir el ascensor en la DOM (Dirección de Obras Municipales) según la indicación de la OGUC Artículo 5.9.5. Numeral 1, mediante una identificación con número único de registro del elevador.", Inspeccion.NombreEdificio));
                 texto.Style = "Parrafo";
-                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, CALIFICA PARA LA CERTIFICACIÓN CON OBSERVACIONES MENORES, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
+                texto = section.AddParagraph(string.Format("El {0} N° {1}, en su estado actual, CALIFICA PARA LA CERTIFICACIÓN CON DEFECTOS LEVES, según  las disposiciones contenidas en la Ley 20.296 y el D.S. N° 47 “Ordenanza General de Urbanismo y Construcciones” OGUC, modificado por el D.S. N° 37 – D.O. 22.03.2016 y en cumplimiento del Artículo 5.9.5 numeral 4: Certificación de ascensores, montacargas y escaleras o rampas mecánicas. Se recomienda  corregir las no conformidades y observaciones técnicas según la norma {2} señaladas en los puntos 4 y 5 del presente informe para que el {0} pueda cumplir con las normas Chilenas y pueda certificarse sin observaciones.", Inspeccion.Aparato.Nombre, Inspeccion.Numero, NormaPrincipalNombre));
                 texto.Style = "Parrafo";
                 if(Inspeccion.Fase == 1)
                 {

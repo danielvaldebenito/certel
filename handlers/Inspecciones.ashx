@@ -136,7 +136,7 @@ public class Inspecciones : IHttpHandler, IRequiresSessionState
         if (data != null)
         {
             var json = serializer.Serialize(data);
-            
+
             context.Response.ContentType = "application/json";
             context.Response.Write(json);
             context.Response.Flush();

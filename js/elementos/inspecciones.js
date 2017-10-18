@@ -123,7 +123,8 @@ $(document).ready(function () {
             { label: '', name: 'Fvc', hidden: true }
             
         ],
-        sortname: 'FechaCreacion', sortorder: 'desc',
+        sortname: 'FechaCreacion',
+        sortorder: 'desc',
         viewrecords: true,
         height: 350,
         rowNum: 30,
