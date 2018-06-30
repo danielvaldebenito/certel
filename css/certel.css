@@ -68,6 +68,9 @@ nav {
         cursor: pointer;
         margin-left: 10px;
     }
+        .panel-default>.panel-heading h3 span i {
+            margin-right: 10px;
+        }
     .panel-default>.panel-heading h3 span:hover {
         color: #007fff;
     }
@@ -75,6 +78,12 @@ nav {
     background: #E2E2E2;
     color: #000;
 }
+
+.panel-default > .panel-footer {
+    background: #233C78;
+    color: #FFF;
+}
+
 .input-group-addon {
     border: 2px solid #aaa;
 }
@@ -145,7 +154,7 @@ nav {
 
 .ui-jqgrid-htable { padding-right: 17px !important; }
 .ui-jqgrid-btable { padding-right: 17px !important; width:calc(100%) !important; max-width: 100% !important;}
-.ui-jqgrid-hbox { padding-right: 0 !important; }
+.ui-jqgrid-hbox { padding-right: 17px !important; }
 .ui-jqgrid-btable tr { padding-right: 17px !important; width:calc(100%)!important }
 
 .ui-dialog-title {
@@ -284,3 +293,44 @@ form {
 .ui-datepicker select.ui-datepicker-month, .ui-datepicker select.ui-datepicker-year{
     color: #233C78;
 }
+
+.table thead th {
+    background: #233C78;
+    color: #FFF;
+    text-align: center;
+}
+
+.list-group-item-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    -ms-flex-direction: row;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+
+.pager.wizard li a,
+.pager.wizard li a:active,
+.pager.wizard li a:disabled,
+.pager.wizard li a:focus {
+    border-radius: 2px;
+    background: #233C78;
+    color: #FFF;
+    border: 1px solid #233C78;
+    margin: 5px;
+}
+    .pager.wizard li a:disabled {
+        opacity: 0.5;
+    }
+    .pager.wizard li a:hover:not(:disabled) {
+        border-color: #FFF;
+        background: #007fff;
+        color: #FFF;
+
+    } 
+    .pager.wizard li a i {
+        margin: 10px;
+    }

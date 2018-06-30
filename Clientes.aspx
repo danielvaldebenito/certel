@@ -37,6 +37,9 @@
                         <div class="row">
                             <form id="formFiltros">
                                 <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                                    <input type="text" class="form-control" id="f_rut" placeholder="Rut Cliente" />
+                                </div>
+                                <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
                                     <input type="text" class="form-control" id="f_name" placeholder="Nombre Cliente" />
                                 </div>
                                 
@@ -77,6 +80,10 @@
                             <input type="text" value="" class="form-control" id="ac_nombre" required maxlength="50"/>
                         </div>
                         <div class="form-group">
+                            <label for="ac_giro">Giro</label>
+                            <input type="text" value="" class="form-control" id="ac_giro" maxlength="50"/>
+                        </div>
+                        <div class="form-group">
                             <label for="ac_direccion">Dirección</label>
                             <input type="text" value="" class="form-control" id="ac_direccion" maxlength="200" />
                         </div>
@@ -108,6 +115,10 @@
                         <div class="form-group">
                             <label for="ac_nombre">Nombre (*)</label>
                             <input type="text" value="" class="form-control" id="ec_nombre" required maxlength="50"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="ac_giro">Giro</label>
+                            <input type="text" value="" class="form-control" id="ec_giro" maxlength="50"/>
                         </div>
                         <div class="form-group">
                             <label for="ac_direccion">Dirección</label>

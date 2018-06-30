@@ -36,8 +36,17 @@
                     <div class="panel-body" data-height-full="true">
                         <div class="row">
                             <form id="formFiltros">
-                                <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
+                                <div class="form-group col-xs-12 col-sm-12 col-md-3 col-lg-3">
                                     <input type="text" class="form-control" id="f_it" placeholder="IT Servicio" />
+                                </div>
+                                <div class="form-group col-xs-12 col-sm-12 col-md-2 col-lg-2">
+                                    <select class="form-control" id="f_calificacion">
+                                        <option value="-2">Todos</option>
+                                        <option value="-1">Sin calificación</option>
+                                        <option value="1">Califica</option>
+                                        <option value="2">Califica con observaciones menores</option>
+                                        <option value="0">No califica</option>
+                                    </select>
                                 </div>
                                 <div class="form-group col-xs-12 col-sm-12 col-md-5 col-lg-5">
                                     <div class="input-group">
